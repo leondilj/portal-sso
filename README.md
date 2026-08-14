@@ -645,8 +645,14 @@ Postgres do Supabase, independente do container do portal estar rodando.
 Instruções de configuração, variáveis de ambiente e como rodar (local ou
 Docker) estão em [`portal/README.md`](portal/README.md). Escopo desta
 primeira versão: login, listagem de aplicações, `GET /authorize` e
-`POST /token` — a aplicação cliente de exemplo (Qualidade) ainda não foi
-implementada.
+`POST /token`.
+
+O lado "aplicação cliente" desse fluxo está demonstrado em
+[`qualidade/`](qualidade/): recebe o `code`, troca por token no portal,
+valida a assinatura via JWKS por conta própria (sem confiar no portal) e
+mostra o papel do usuário especificamente em Qualidade. Detalhes em
+[`qualidade/README.md`](qualidade/README.md) — inclui o bloco de Caddy que
+ainda falta adicionar na VM do lab para `qualidade.lab.internal`.
 
 ---
 
@@ -864,14 +870,19 @@ docker compose ps
   Supabase/Postgres/Docker reais no ambiente de desenvolvimento) passando
 - Migrations SQL do schema do portal prontas em `sql/` (aplicações/papéis,
   hook, `app_clients`/`auth_codes`)
+- Aplicação cliente de exemplo implementada (`qualidade/`): troca o code no
+  `/callback`, valida o JWT via JWKS por conta própria, mostra o papel do
+  usuário em Qualidade e uma área restrita a `gerente` — suíte de testes
+  (mocks/fakes) passando
 
 **Pendente**
 
 - MCP: `tools/call` com erro de autenticação do `supabase_read_only_user`
-- Aplicar as migrations de `sql/` e validar o Portal FastAPI de ponta a
-  ponta contra o Supabase real da VM do lab (login, hook, `/authorize` →
-  `/token`)
-- Aplicação cliente de exemplo (Qualidade)
+- Aplicar as migrations de `sql/` e validar o Portal FastAPI + a app
+  Qualidade de ponta a ponta contra o Supabase real da VM do lab (login,
+  hook, `/authorize` → `/token` → `/callback`)
+- Adicionar o bloco de Caddy para `qualidade.lab.internal` na VM do lab
+  (documentado em `qualidade/README.md`, ainda não aplicado)
 - Storage marcado `unhealthy` pelo healthcheck (serviço sobe normalmente)
 
 **Higiene antes de sair do lab**

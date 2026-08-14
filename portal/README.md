@@ -93,5 +93,6 @@ Validar isso de verdade exige rodar contra o Supabase da VM do lab.
   mandado de volta para `/login`.
 - `GET /authorize` sempre usa o primeiro `redirect_uri` cadastrado para a
   aplicacao (sem selecao por parametro).
-- Nenhuma aplicacao cliente de exemplo (ex.: "Qualidade") esta implementada
-  neste repositorio ainda - fica para uma proxima etapa.
+
+Uma aplicacao cliente de exemplo (Qualidade), demonstrando o outro lado
+deste fluxo, esta em [`../qualidade/`](../qualidade/).

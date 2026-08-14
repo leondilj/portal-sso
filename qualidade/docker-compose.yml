@@ -1,0 +1,9 @@
+services:
+  qualidade:
+    build: .
+    image: qualidade-app:latest
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    restart: unless-stopped

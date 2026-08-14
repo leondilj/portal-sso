@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Qualidade{% endblock %}
+
+{% block content %}
+  {% if session %}
+    <p class="logged-in-as">
+      Logado como {{ session.email }}
+      <a class="logout-link" href="/logout">Sair</a>
+    </p>
+    <p>Seu papel em Qualidade: <strong>{{ session.papeis | join(", ") }}</strong></p>
+
+    {% if "gerente" in session.papeis %}
+      <p><a href="/area-gerente">Ir para a Area do Gerente</a></p>
+    {% endif %}
+  {% else %}
+    <p class="empty-state">
+      Voce ainda nao esta logado nesta aplicacao. Acesse pelo Portal SSO e
+      clique no tile "Qualidade" para entrar.
+    </p>
+  {% endif %}
+{% endblock %}
