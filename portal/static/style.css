@@ -1,0 +1,73 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  color: #1a1a1a;
+}
+
+header h1 {
+  font-size: 1.25rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 20rem;
+}
+
+.login-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.error {
+  color: #b00020;
+}
+
+.logged-in-as {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logout-form {
+  margin: 0;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.app-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.app-tile:hover {
+  border-color: #888;
+}
+
+.app-nome {
+  font-weight: 600;
+}
+
+.app-descricao {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.empty-state {
+  color: #555;
+}

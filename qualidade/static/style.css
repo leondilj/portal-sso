@@ -1,0 +1,36 @@
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  color: #1a1a1a;
+}
+
+header h1 {
+  font-size: 1.25rem;
+  margin-bottom: 0;
+}
+
+.subtitle {
+  margin-top: 0.15rem;
+  color: #555;
+  font-size: 0.85rem;
+}
+
+.logged-in-as {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logout-link {
+  font-size: 0.85rem;
+}
+
+.error {
+  color: #b00020;
+}
+
+.empty-state {
+  color: #555;
+}
