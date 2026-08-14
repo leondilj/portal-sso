@@ -1,0 +1,48 @@
+[project]
+name = "portal-sso"
+version = "0.1.0"
+description = "Portal SSO do lab: autenticacao central via Supabase + mini authorization code flow para as aplicacoes clientes."
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "supabase>=2.9",
+  "asyncpg>=0.29",
+  "pyjwt[crypto]>=2.9",
+  "itsdangerous>=2.2",
+  "jinja2>=3.1",
+  "python-multipart>=0.0.9",
+  "httpx>=0.27",
+  "pydantic-settings>=2.4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.24",
+  "respx>=0.21",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true

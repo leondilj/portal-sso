@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas aplicacoes - Portal SSO{% endblock %}
+
+{% block content %}
+  <p class="logged-in-as">
+    Logado como {{ session.email }}
+    <form method="post" action="/logout" class="logout-form">
+      <button type="submit">Sair</button>
+    </form>
+  </p>
+
+  {% if apps %}
+    <div class="app-grid">
+      {% for app in apps %}
+        <a class="app-tile" href="/authorize?app_id={{ app.id }}">
+          {% if app.icone %}<span class="app-icone">{{ app.icone }}</span>{% endif %}
+          <span class="app-nome">{{ app.nome }}</span>
+          {% if app.descricao %}<span class="app-descricao">{{ app.descricao }}</span>{% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">Voce ainda nao tem acesso a nenhuma aplicacao.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Portal SSO{% endblock %}
+
+{% block content %}
+  <form method="post" action="/login" class="login-form">
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <label>
+      E-mail
+      <input type="email" name="email" required autofocus>
+    </label>
+    <label>
+      Senha
+      <input type="password" name="password" required>
+    </label>
+    <button type="submit">Entrar</button>
+  </form>
+{% endblock %}

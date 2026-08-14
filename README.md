@@ -635,6 +635,21 @@ Estratégia Strangler Fig: cada app mantém o login próprio e ganha um botão "
 
 ---
 
+## 8.6 Portal SSO — implementação
+
+A arquitetura acima está implementada em [`portal/`](portal/) (FastAPI, seguindo
+o stack decidido em 8.2). As migrations SQL do schema (7.1–8.1) estão em
+[`sql/`](sql/), separadas do código do portal — são aplicadas direto no
+Postgres do Supabase, independente do container do portal estar rodando.
+
+Instruções de configuração, variáveis de ambiente e como rodar (local ou
+Docker) estão em [`portal/README.md`](portal/README.md). Escopo desta
+primeira versão: login, listagem de aplicações, `GET /authorize` e
+`POST /token` — a aplicação cliente de exemplo (Qualidade) ainda não foi
+implementada.
+
+---
+
 ## 9. MCP do Supabase
 
 Dá ao agente (Claude Code) acesso ao schema real: ler tabelas, rodar SQL, aplicar migrations. Não gera código — quem gera é o agente; o MCP evita que ele chute nomes de tabela.
@@ -844,12 +859,18 @@ docker compose ps
 - Custom Access Token Hook injetando `acessos` no JWT
 - Chaves assimétricas ES256 + JWKS
 - Login validado com token contendo os papéis corretos
+- Portal FastAPI implementado (`portal/`): login, listagem de aplicações,
+  `GET /authorize`, `POST /token` — suíte de testes (mocks/fakes, sem
+  Supabase/Postgres/Docker reais no ambiente de desenvolvimento) passando
+- Migrations SQL do schema do portal prontas em `sql/` (aplicações/papéis,
+  hook, `app_clients`/`auth_codes`)
 
 **Pendente**
 
 - MCP: `tools/call` com erro de autenticação do `supabase_read_only_user`
-- Portal FastAPI: código desenhado, não implementado
-- Tabelas `app_clients` e `auth_codes`: SQL pronto, aplicação a confirmar
+- Aplicar as migrations de `sql/` e validar o Portal FastAPI de ponta a
+  ponta contra o Supabase real da VM do lab (login, hook, `/authorize` →
+  `/token`)
 - Aplicação cliente de exemplo (Qualidade)
 - Storage marcado `unhealthy` pelo healthcheck (serviço sobe normalmente)
 
