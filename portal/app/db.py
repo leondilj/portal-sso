@@ -128,4 +128,6 @@ async def consume_auth_code(pool: Any, code: str, client_secret: str) -> AuthCod
             "update public.auth_codes set usado_em = now() where code = $1",
             code,
         )
-        return AuthCodeRow(**dict(row))
+        row_data = dict(row)
+        row_data["user_id"] = str(row_data["user_id"])
+        return AuthCodeRow(**row_data)

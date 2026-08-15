@@ -1,4 +1,5 @@
 import asyncio
+import uuid
 from datetime import UTC, datetime, timedelta
 
 from app import db
@@ -75,6 +76,31 @@ def test_token_unknown_code(harness) -> None:
 
     assert response.status_code == 400
     assert response.json() == {"error": "invalid_grant"}
+
+
+async def test_consume_auth_code_handles_real_asyncpg_uuid_type(fake_pool) -> None:
+    """Regressao: a coluna auth_codes.user_id e `uuid` no Postgres, e o
+    asyncpg decodifica isso como um objeto uuid.UUID (nao uma str) quando
+    le a linha de volta - diferente do que session.user_id sempre foi ao
+    GRAVAR o code (uma str vinda dos claims do JWT). O fake pool dos outros
+    testes usa str direto, o que mascarava esse mismatch de tipo; aqui
+    simulamos o valor exatamente como o asyncpg devolveria."""
+    code = "code-uuid"
+    real_user_id = uuid.uuid4()
+    fake_pool.auth_codes[code] = {
+        "code": code,
+        "user_id": real_user_id,
+        "aplicacao_id": "qualidade",
+        "redirect_uri": "http://qualidade.lab.internal/callback",
+        "access_token": "tok-acesso",
+        "refresh_token": "tok-refresh",
+        "expira_em": datetime.now(UTC) + timedelta(seconds=60),
+        "usado_em": None,
+    }
+
+    row = await db.consume_auth_code(fake_pool, code, "segredo-certo")
+
+    assert row.user_id == str(real_user_id)
 
 
 async def test_consume_auth_code_concurrent_only_one_wins(fake_pool) -> None:
