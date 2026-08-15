@@ -54,7 +54,9 @@ docker compose up --build
 | `SUPABASE_URL` | Base URL do GoTrue, usada pelo `supabase-py` no login/refresh (mesmo valor de `SUPABASE_PUBLIC_URL` no `.env` do Supabase) |
 | `SUPABASE_PUBLISHABLE_KEY` | Chave publica/anon do Supabase |
 | `SUPABASE_JWKS_URL` | Endpoint JWKS para validar o JWT localmente (ES256), sem round-trip por request |
-| `PORTAL_DATABASE_URL` | DSN Postgres (asyncpg) com uma role privilegiada, para acesso direto as tabelas do portal - **nao e a mesma coisa** que a `SECRET_KEY`/service-role do Supabase, que so vale para chamadas HTTP via PostgREST/GoTrue |
+| `PORTAL_DATABASE_URL` | DSN Postgres (asyncpg) com uma role privilegiada, para acesso direto as tabelas do portal - **nao e a mesma coisa** que a `SECRET_KEY`/service-role do Supabase, que so vale para chamadas HTTP via PostgREST/GoTrue. Aponte para `db` (o container, via `SUPABASE_DOCKER_NETWORK` abaixo), nao para a porta 5432 publicada no host - em instalacoes self-hosted recentes essa porta fica atras do Supavisor (pooler), que exige um identificador de tenant e rejeita uma conexao comum |
+| `SUPABASE_DOCKER_NETWORK` | Nome da rede Docker da stack do Supabase (`docker network ls` no host) - o `docker-compose.yml` do portal entra nessa rede para o container falar direto com `db:5432` |
+| `PORTAL_DNS_SERVER` | IP real da VM (nao 127.0.0.1) onde o dnsmasq do lab escuta - necessario porque o dnsmasq costuma estar configurado com `except-interface=docker0` (README raiz, secao 4.2), entao o gateway da bridge do Docker nao resolve `*.lab.internal` de dentro do container |
 | `PORTAL_SESSION_SECRET` | Chave de assinatura do cookie de sessao (itsdangerous) |
 | `PORTAL_SESSION_MAX_AGE_SECONDS` | Validade do cookie de sessao - alinhe com `JWT_EXPIRY` do Supabase |
 | `PORTAL_COOKIE_SECURE` | `true` so se o portal estiver atras de TLS |

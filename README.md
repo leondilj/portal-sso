@@ -850,6 +850,8 @@ docker compose ps
 | `address already in use` na 8000 | Túnel SSH aberto de dentro da VM | `kill <pid>` |
 | `~cd`, `^[[200~` grudados nos comandos | Bracketed paste do Git Bash | Colar uma linha por vez |
 | `ssh`/`bcdedit` não reconhecidos | PATH do PowerShell corrompido | Caminho completo, ou Git Bash/cmd |
+| `psql` na porta 5432 do host dá `no tenant identifier provided (ENOIDENTIFIER)` | A porta publicada é o Supavisor (pooler), não o Postgres puro | `docker exec -i supabase-db psql -U supabase_admin -d postgres` direto no container, ou conectar o container cliente à rede Docker do Supabase e falar com `db:5432` |
+| Container do portal/Qualidade não resolve `*.lab.internal` | dnsmasq configurado com `except-interface=docker0` (seção 4.2) — o gateway da bridge do Docker não é atendido | Apontar o DNS do container para o IP real da VM (`dns:` no `docker-compose.yml`, não `127.0.0.1` nem o gateway do docker0) |
 
 ---
 

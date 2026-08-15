@@ -6,4 +6,6 @@ services:
       - "8081:8081"
     env_file:
       - .env
+    dns:
+      - ${QUALIDADE_DNS_SERVER}
     restart: unless-stopped

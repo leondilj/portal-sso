@@ -91,6 +91,7 @@ docker compose up --build
 | `QUALIDADE_SESSION_MAX_AGE_SECONDS` | Validade do cookie de sessão |
 | `QUALIDADE_COOKIE_SECURE` | `true` só se estiver atrás de TLS |
 | `QUALIDADE_HOST` / `QUALIDADE_PORT` | Bind do servidor (o Dockerfile fixa `0.0.0.0:8081` no `CMD`) |
+| `QUALIDADE_DNS_SERVER` | IP real da VM (nao 127.0.0.1) onde o dnsmasq do lab escuta - necessario porque o dnsmasq costuma estar configurado com `except-interface=docker0` (README raiz, secao 4.2), entao o gateway da bridge do Docker nao resolve `*.lab.internal` de dentro do container (precisa para alcancar `PORTAL_TOKEN_URL` e `SUPABASE_JWKS_URL`) |
 
 ## Rodando os testes
 

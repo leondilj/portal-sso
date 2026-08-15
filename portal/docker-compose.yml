@@ -6,4 +6,17 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    dns:
+      - ${PORTAL_DNS_SERVER}
+    networks:
+      - default
+      - supabase
     restart: unless-stopped
+
+networks:
+  # Rede da stack do Supabase (ver `docker network ls` no host) - o portal
+  # entra nela para falar direto com o servico `db`, sem passar pelo
+  # Supavisor (que intercepta a porta 5432 publicada no host).
+  supabase:
+    name: ${SUPABASE_DOCKER_NETWORK}
+    external: true
