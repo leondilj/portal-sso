@@ -5,6 +5,35 @@
    disponivel no ambiente onde este pacote foi preparado. Confirmar hex
    exatos e trocar aqui quando o arquivo de marca real chegar.
    ========================================================================= */
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-700.woff2") format("woff2");
+}
+
 :root {
   --color-primary: #13222e;     /* azul-marinho escuro Kover */
   --color-primary-dark: #0c161f;
@@ -28,7 +57,7 @@
   --color-danger-bg: #fbe9eb;
   --color-inactive: #6b7076;
 
-  --font-sans: ui-rounded, "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Quicksand", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-size-sm: 0.85rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.25rem;
@@ -81,6 +110,12 @@ a {
 }
 
 /* Cabecalho minimo usado por paginas sem sessao (login, 403) */
+.bare-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .bare-header {
   background: var(--color-primary);
   padding: var(--space-4) var(--space-6);
@@ -106,9 +141,19 @@ a {
 }
 
 .bare-main {
+  flex: 1;
+  width: 100%;
   max-width: 40rem;
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
+}
+
+/* variante usada pela pagina de login: fundo azul-marinho em tela cheia,
+   ecoando o hero escuro do site institucional, com o cartao flutuando
+   centralizado por cima */
+.auth-main {
+  flex: 1;
+  padding: 0;
 }
 
 /* =========================================================================
@@ -355,9 +400,12 @@ button {
    Login
    ========================================================================= */
 .auth-page {
+  min-height: 100%;
+  background: var(--color-primary);
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding-top: var(--space-8);
+  padding: var(--space-8) var(--space-4);
 }
 
 .auth-card {
@@ -373,6 +421,7 @@ button {
 .auth-card__title {
   margin: 0 0 var(--space-1);
   font-size: var(--font-size-xl);
+  font-weight: 700;
 }
 
 .auth-card__subtitle {

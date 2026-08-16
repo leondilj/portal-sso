@@ -8,15 +8,17 @@
 </head>
 <body>
   {% block body %}
-    <header class="bare-header">
-      <a class="brand" href="/">
-        <span class="brand__mark">KOVER</span>
-        <span class="brand__product">Portal SSO</span>
-      </a>
-    </header>
-    <main class="bare-main">
-      {% block content %}{% endblock %}
-    </main>
+    <div class="bare-shell">
+      <header class="bare-header">
+        <a class="brand" href="/">
+          <span class="brand__mark">KOVER</span>
+          <span class="brand__product">Portal SSO</span>
+        </a>
+      </header>
+      <main class="{% block main_class %}bare-main{% endblock %}">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
   {% endblock %}
 </body>
 </html>
