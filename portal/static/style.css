@@ -1,62 +1,475 @@
-body {
-  font-family: system-ui, sans-serif;
-  max-width: 40rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  color: #1a1a1a;
+/* =========================================================================
+   Tokens de design — Kover Portal SSO
+   Cores/tipografia estimadas a partir de capturas de tela do site
+   institucional (kover.ind.br), pois o acesso direto ao site nao estava
+   disponivel no ambiente onde este pacote foi preparado. Confirmar hex
+   exatos e trocar aqui quando o arquivo de marca real chegar.
+   ========================================================================= */
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Quicksand";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/static/fonts/quicksand-700.woff2") format("woff2");
 }
 
-header h1 {
-  font-size: 1.25rem;
+:root {
+  --color-primary: #13222e;     /* azul-marinho escuro Kover */
+  --color-primary-dark: #0c161f;
+  --color-accent: #a7cd44;      /* verde Kover - valor exato, amostrado do logo real */
+  --color-accent-dark: #87a836;
+
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5f66;
+  --color-border: #d8dade;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4f5f7;
+  --color-surface-sunken: #eceef1;
+  --color-on-dark: #ffffff;
+  --color-on-dark-muted: rgba(255, 255, 255, 0.72);
+  --color-on-dark-border: rgba(255, 255, 255, 0.12);
+  --color-on-dark-hover: rgba(255, 255, 255, 0.08);
+
+  --color-success: #1a7f37;
+  --color-success-bg: #e6f4ea;
+  --color-danger: #b00020;
+  --color-danger-bg: #fbe9eb;
+  --color-inactive: #6b7076;
+
+  --font-sans: "Quicksand", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-sm: 0.85rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px rgba(19, 34, 46, 0.08);
+  --shadow-md: 0 4px 12px rgba(19, 34, 46, 0.14);
+  --sidebar-width: 15rem;
+  --focus-ring: 0 0 0 3px rgba(167, 205, 68, 0.45);
+}
+
+/* =========================================================================
+   Base
+   ========================================================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+h1, h2, h3 {
+  line-height: 1.25;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+a {
+  color: var(--color-primary);
+}
+
+/* Cabecalho minimo usado por paginas sem sessao (login, 403) */
+.bare-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.bare-header {
+  background: var(--color-primary);
+  padding: var(--space-4) var(--space-6);
+}
+
+.bare-header .brand {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.brand__logo {
+  display: block;
+  height: 2.25rem;
+  width: auto;
+}
+
+.bare-main {
+  flex: 1;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+/* variante usada pela pagina de login: fundo azul-marinho em tela cheia,
+   ecoando o hero escuro do site institucional, com o cartao flutuando
+   centralizado por cima */
+.auth-main {
+  flex: 1;
+  padding: 0;
+}
+
+/* =========================================================================
+   Shell autenticado (sidebar + conteudo) — home.html e area /admin
+   ========================================================================= */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-sidebar__brand {
+  padding: var(--space-4);
+  display: flex;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-on-dark-border);
+}
+
+.app-sidebar__brand .brand__logo {
+  height: 2rem;
+}
+
+.app-sidebar__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  gap: 2px;
+}
+
+.app-sidebar__nav a {
+  color: var(--color-on-dark-muted);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}
+
+.app-sidebar__nav a:hover,
+.app-sidebar__nav a.is-active {
+  background: var(--color-on-dark-hover);
+  color: var(--color-on-dark);
+}
+
+.app-sidebar__section {
+  padding: var(--space-4) var(--space-3) var(--space-1);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-dark-muted);
+}
+
+.app-sidebar__user {
+  border-top: 1px solid var(--color-on-dark-border);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.user-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: var(--font-size-sm);
+  color: var(--color-on-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-role {
+  font-size: 0.7rem;
+  color: var(--color-on-dark-muted);
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: var(--color-on-dark-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+
+.btn-logout:hover {
+  color: var(--color-on-dark);
+}
+
+.app-shell__main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-6) var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .app-sidebar__brand {
+    border-bottom: none;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .app-sidebar__nav {
+    flex-direction: row;
+    flex: 1;
+    overflow-x: auto;
+  }
+
+  .app-sidebar__user {
+    border-top: none;
+    border-left: 1px solid var(--color-on-dark-border);
+  }
+
+  .app-shell__main {
+    padding: var(--space-4);
+  }
+}
+
+/* =========================================================================
+   Botoes e campos de formulario (globais)
+   ========================================================================= */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="number"],
+input[type="search"],
+select {
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+input:disabled {
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: inherit;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-text-muted);
+}
+
+.btn-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger-bg);
+}
+
+.btn-danger:hover {
+  background: var(--color-danger);
+  color: var(--color-on-dark);
+}
+
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+/* botao "sem estilo" usado por formularios que ja carregam sua propria classe */
+button {
+  font: inherit;
+}
+
+/* =========================================================================
+   Login
+   ========================================================================= */
+.auth-page {
+  min-height: 100%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.auth-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-8);
+  width: 100%;
+  max-width: 22rem;
+}
+
+.auth-card__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.auth-card__subtitle {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-width: 20rem;
+  gap: var(--space-4);
 }
 
 .login-form label {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.login-form .btn {
+  justify-content: center;
+  margin-top: var(--space-2);
 }
 
 .error {
-  color: #b00020;
+  color: var(--color-danger);
 }
 
-.logged-in-as {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.logout-form {
-  margin: 0;
+/* =========================================================================
+   Home / seletor de aplicacoes
+   ========================================================================= */
+.page-intro {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-muted);
 }
 
 .app-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: var(--space-4);
 }
 
 .app-tile {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   text-decoration: none;
   color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.app-tile:hover {
-  border-color: #888;
+.app-tile:hover,
+.app-tile:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.app-icone {
+  font-size: 1.75rem;
 }
 
 .app-nome {
@@ -64,77 +477,207 @@ header h1 {
 }
 
 .app-descricao {
-  font-size: 0.85rem;
-  color: #555;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .empty-state {
-  color: #555;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-8) 0;
 }
 
-/* --- area administrativa (/admin) ------------------------------------- */
-
-.admin-nav {
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #ddd;
-  font-size: 0.9rem;
+/* =========================================================================
+   Area administrativa (/admin)
+   ========================================================================= */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
 }
 
-.admin-nav a {
-  color: inherit;
+.page-header h2 {
+  margin: 0;
 }
 
-main form:not(.logout-form):not(.confirm-danger) {
+.page-header__subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: var(--space-1) 0 0;
+}
+
+/* grade de cards do Painel administrativo */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--space-4);
+}
+
+.dashboard-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-width: 28rem;
-  margin-bottom: 1rem;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard-card:hover,
+.dashboard-card:focus-visible {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-card__icon {
+  font-size: 1.75rem;
+  color: var(--color-accent-dark);
+}
+
+.dashboard-card__title {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.dashboard-card__desc {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* formularios de cadastro/edicao */
+.form-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  max-width: 32rem;
+  margin-bottom: var(--space-4);
+}
+
+main form:not(.logout-form):not(.confirm-danger):not(.search-form) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 main form label {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
 }
 
 .confirm-danger {
   display: inline;
 }
 
+.search-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.search-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+/* acoes de linha (Editar / Excluir / Revogar etc) */
+.row-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.table-wrap {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin: var(--space-4) 0;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  background: var(--color-surface);
 }
 
-.data-table th,
+.data-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-alt);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .data-table td {
   text-align: left;
-  padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid #eee;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-surface-sunken);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-surface-alt);
+}
+
+.badge,
+.badge-inativo {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
 }
 
 .badge {
-  color: #1a7f37;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .badge-inativo {
-  color: #888;
+  background: var(--color-surface-sunken);
+  color: var(--color-inactive);
 }
 
 .secret-reveal {
-  padding: 0.75rem 1rem;
-  background: #f6f6f6;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   font-size: 1.1rem;
   word-break: break-all;
 }
 
+.secret-reveal code {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
 .hint {
   display: block;
-  font-size: 0.8rem;
-  color: #555;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+section + section {
+  margin-top: var(--space-8);
+}
+
+section h3 {
+  margin-bottom: var(--space-3);
 }

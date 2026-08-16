@@ -5,24 +5,26 @@ from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app import db_admin as da
-from app.deps import PoolDep
+from app.deps import AdminSession, PoolDep
 
 router = APIRouter(prefix="/sistemas")
 
 
 @router.get("")
-async def listar(request: Request, *, pool: PoolDep) -> Response:
+async def listar(request: Request, *, pool: PoolDep, session: AdminSession) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistemas = await da.list_aplicacoes(pool)
     return templates.TemplateResponse(
-        request, "admin/sistemas_lista.html", {"sistemas": sistemas}
+        request, "admin/sistemas_lista.html", {"sistemas": sistemas, "session": session}
     )
 
 
 @router.get("/novo")
-async def novo_form(request: Request) -> Response:
+async def novo_form(request: Request, *, session: AdminSession) -> Response:
     templates: Jinja2Templates = request.app.state.templates
-    return templates.TemplateResponse(request, "admin/sistema_novo.html", {"error": None})
+    return templates.TemplateResponse(
+        request, "admin/sistema_novo.html", {"error": None, "session": session}
+    )
 
 
 @router.post("/novo")
@@ -30,6 +32,7 @@ async def criar(
     request: Request,
     *,
     pool: PoolDep,
+    session: AdminSession,
     aplicacao_id: str = Form(...),
     nome: str = Form(...),
     descricao: str = Form(""),
@@ -52,14 +55,19 @@ async def criar(
         return templates.TemplateResponse(
             request,
             "admin/sistema_novo.html",
-            {"error": f"ja existe um sistema com o id '{aplicacao_id}'"},
+            {
+                "error": f"ja existe um sistema com o id '{aplicacao_id}'",
+                "session": session,
+            },
             status_code=200,
         )
     return RedirectResponse(url=f"/admin/sistemas/{aplicacao_id}", status_code=303)
 
 
 @router.get("/{aplicacao_id}")
-async def detalhe(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Response:
+async def detalhe(
+    aplicacao_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await da.fetch_aplicacao(pool, aplicacao_id)
     if sistema is None:
@@ -69,7 +77,7 @@ async def detalhe(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Resp
     return templates.TemplateResponse(
         request,
         "admin/sistema_detalhe.html",
-        {"sistema": sistema, "cliente": cliente, "perfis": perfis},
+        {"sistema": sistema, "cliente": cliente, "perfis": perfis, "session": session},
     )
 
 

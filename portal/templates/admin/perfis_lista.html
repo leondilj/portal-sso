@@ -3,28 +3,37 @@
 {% block title %}Perfis - {{ sistema.nome }}{% endblock %}
 
 {% block admin_content %}
-  <h2>Perfis - {{ sistema.nome }}</h2>
-  <p><a href="/admin/sistemas/{{ sistema.id }}/perfis/novo">+ Novo perfil</a></p>
-  <table class="data-table">
-    <thead>
-      <tr><th>Codigo</th><th>Nome</th><th>Descricao</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for p in perfis %}
-        <tr>
-          <td>{{ p.codigo }}</td>
-          <td>{{ p.nome }}</td>
-          <td>{{ p.descricao or "" }}</td>
-          <td>
-            <a href="/admin/sistemas/{{ sistema.id }}/perfis/{{ p.id }}/editar">Editar</a>
-            &nbsp;
-            <a href="/admin/sistemas/{{ sistema.id }}/perfis/{{ p.id }}/excluir">Excluir</a>
-          </td>
-        </tr>
-      {% else %}
-        <tr><td colspan="4">Nenhum perfil cadastrado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="page-header">
+    <div>
+      <h2>Perfis</h2>
+      <p class="page-header__subtitle">{{ sistema.nome }}</p>
+    </div>
+    <a class="btn btn-primary" href="/admin/sistemas/{{ sistema.id }}/perfis/novo">+ Novo perfil</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Codigo</th><th>Nome</th><th>Descricao</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for p in perfis %}
+          <tr>
+            <td>{{ p.codigo }}</td>
+            <td>{{ p.nome }}</td>
+            <td>{{ p.descricao or "" }}</td>
+            <td>
+              <div class="row-actions">
+                <a class="btn btn-secondary btn-sm" href="/admin/sistemas/{{ sistema.id }}/perfis/{{ p.id }}/editar">Editar</a>
+                <a class="btn btn-danger btn-sm" href="/admin/sistemas/{{ sistema.id }}/perfis/{{ p.id }}/excluir">Excluir</a>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4">Nenhum perfil cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   <p><a href="/admin/sistemas/{{ sistema.id }}">Voltar ao sistema</a></p>
 {% endblock %}

@@ -7,12 +7,42 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header>
-    <h1>Qualidade</h1>
-    <p class="subtitle">app cliente de exemplo do Portal SSO</p>
-  </header>
-  <main>
-    {% block content %}{% endblock %}
-  </main>
+  {% if session %}
+    <div class="app-shell">
+      <aside class="app-sidebar">
+        <a class="app-sidebar__brand" href="/">
+          <span class="brand__mark">QUALIDADE</span>
+          <span class="brand__product">app cliente de exemplo do Portal SSO</span>
+        </a>
+        <nav class="app-sidebar__nav">
+          <a href="/" class="{{ 'is-active' if request.url.path == '/' else '' }}">Inicio</a>
+          {% if "gerente" in session.papeis %}
+            <a href="/area-gerente" class="{{ 'is-active' if request.url.path == '/area-gerente' else '' }}">Area do Gerente</a>
+          {% endif %}
+        </nav>
+        <div class="app-sidebar__user">
+          <span class="user-avatar">{{ session.email[0]|upper }}</span>
+          <span class="user-meta">
+            <span class="user-name">{{ session.email.split("@")[0]|replace(".", " ")|title }}</span>
+            <span class="user-role">{{ session.papeis | join(", ") }}</span>
+          </span>
+          <a class="btn-logout" href="/logout" title="Sair" aria-label="Sair">&#9211;</a>
+        </div>
+      </aside>
+      <main class="app-shell__main">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  {% else %}
+    <header class="bare-header">
+      <a class="brand" href="/">
+        <span class="brand__mark">QUALIDADE</span>
+        <span class="brand__product">app cliente de exemplo do Portal SSO</span>
+      </a>
+    </header>
+    <main class="bare-main">
+      {{ self.content() }}
+    </main>
+  {% endif %}
 </body>
 </html>

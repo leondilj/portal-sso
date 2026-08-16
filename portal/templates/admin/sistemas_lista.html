@@ -3,29 +3,37 @@
 {% block title %}Sistemas - Portal SSO{% endblock %}
 
 {% block admin_content %}
-  <h2>Sistemas</h2>
-  <p><a href="/admin/sistemas/novo">+ Novo sistema</a></p>
-  <table class="data-table">
-    <thead>
-      <tr><th>ID</th><th>Nome</th><th>Ordem</th><th>Status</th></tr>
-    </thead>
-    <tbody>
-      {% for s in sistemas %}
-        <tr>
-          <td><a href="/admin/sistemas/{{ s.id }}">{{ s.id }}</a></td>
-          <td>{{ s.nome }}</td>
-          <td>{{ s.ordem }}</td>
-          <td>
-            {% if s.ativo %}
-              <span class="badge">ativo</span>
-            {% else %}
-              <span class="badge-inativo">inativo</span>
-            {% endif %}
-          </td>
-        </tr>
-      {% else %}
-        <tr><td colspan="4">Nenhum sistema cadastrado.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="page-header">
+    <div>
+      <h2>Sistemas</h2>
+      <p class="page-header__subtitle">Aplicacoes cadastradas no portal.</p>
+    </div>
+    <a class="btn btn-primary" href="/admin/sistemas/novo">+ Novo sistema</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>ID</th><th>Nome</th><th>Ordem</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for s in sistemas %}
+          <tr>
+            <td><a href="/admin/sistemas/{{ s.id }}">{{ s.id }}</a></td>
+            <td>{{ s.nome }}</td>
+            <td>{{ s.ordem }}</td>
+            <td>
+              {% if s.ativo %}
+                <span class="badge">ativo</span>
+              {% else %}
+                <span class="badge-inativo">inativo</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4">Nenhum sistema cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

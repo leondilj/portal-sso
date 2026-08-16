@@ -4,10 +4,14 @@
 
 {% block admin_content %}
   {% if segredo %}
-    <h2>{{ segredo.titulo }}</h2>
-    <p class="secret-reveal"><code>{{ segredo.valor }}</code></p>
-    <p class="error">{{ segredo.aviso }}</p>
-    <p><a href="{{ segredo.voltar_url }}">Continuar</a></p>
+    <div class="page-header">
+      <h2>{{ segredo.titulo }}</h2>
+    </div>
+    <div class="form-card">
+      <p class="secret-reveal"><code>{{ segredo.valor }}</code></p>
+      <p class="error">{{ segredo.aviso }}</p>
+      <a class="btn btn-primary" href="{{ segredo.voltar_url }}">Continuar</a>
+    </div>
   {% else %}
     <p class="error">
       Nada para exibir - o valor ja foi mostrado ou expirou. Gere um novo se precisar.

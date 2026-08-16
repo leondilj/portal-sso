@@ -7,7 +7,14 @@ from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app import db_admin as da
-from app.deps import ADMIN_APP_ID, ADMIN_ROLE_CODE, AdminClientDep, CurrentSession, PoolDep
+from app.deps import (
+    ADMIN_APP_ID,
+    ADMIN_ROLE_CODE,
+    AdminClientDep,
+    AdminSession,
+    CurrentSession,
+    PoolDep,
+)
 from app.models import AuthUserRow
 from app.routers.admin._flash import read_flash_secret, redirect_com_segredo
 from app.sessions import FLASH_SECRET_COOKIE_NAME
@@ -24,7 +31,12 @@ async def _fetch_usuario_ou_404(pool: object, user_id: str) -> AuthUserRow:
 
 
 async def _render_detalhe(
-    request: Request, pool: object, user_id: str, *, error: str | None = None
+    request: Request,
+    pool: object,
+    user_id: str,
+    *,
+    session: AdminSession,
+    error: str | None = None,
 ) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     usuario = await _fetch_usuario_ou_404(pool, user_id)
@@ -38,27 +50,37 @@ async def _render_detalhe(
             "papeis": papeis,
             "papeis_disponiveis": papeis_disponiveis,
             "error": error,
+            "session": session,
         },
     )
 
 
 @router.get("")
-async def buscar(request: Request, *, pool: PoolDep, q: str | None = None) -> Response:
+async def buscar(
+    request: Request, *, pool: PoolDep, session: AdminSession, q: str | None = None
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     resultados = await da.search_auth_users(pool, q, 50) if q else []
     return templates.TemplateResponse(
-        request, "admin/usuarios_busca.html", {"q": q or "", "resultados": resultados}
+        request,
+        "admin/usuarios_busca.html",
+        {"q": q or "", "resultados": resultados, "session": session},
     )
 
 
 @router.get("/novo")
-async def novo_form(request: Request, *, pool: PoolDep) -> Response:
+async def novo_form(request: Request, *, pool: PoolDep, session: AdminSession) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     papeis_disponiveis = await da.list_papeis_disponiveis(pool)
     return templates.TemplateResponse(
         request,
         "admin/usuario_novo.html",
-        {"papeis_disponiveis": papeis_disponiveis, "error": None, "busca_url": None},
+        {
+            "papeis_disponiveis": papeis_disponiveis,
+            "error": None,
+            "busca_url": None,
+            "session": session,
+        },
     )
 
 
@@ -90,6 +112,7 @@ async def criar(
                 "papeis_disponiveis": papeis_disponiveis,
                 "error": f"ja existe um usuario com o e-mail {email}",
                 "busca_url": f"/admin/usuarios?q={email}",
+                "session": session,
             },
         )
     except WeakPasswordError as exc:
@@ -101,6 +124,7 @@ async def criar(
                 "papeis_disponiveis": papeis_disponiveis,
                 "error": "senha gerada rejeitada pelo Supabase: " + "; ".join(exc.reasons),
                 "busca_url": None,
+                "session": session,
             },
         )
     except AdminApiError:
@@ -112,6 +136,7 @@ async def criar(
                 "papeis_disponiveis": papeis_disponiveis,
                 "error": "erro ao criar usuario, tente novamente",
                 "busca_url": None,
+                "session": session,
             },
         )
 
@@ -130,8 +155,10 @@ async def criar(
 
 
 @router.get("/{user_id}")
-async def detalhe(user_id: str, request: Request, *, pool: PoolDep) -> Response:
-    return await _render_detalhe(request, pool, user_id)
+async def detalhe(
+    user_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
+    return await _render_detalhe(request, pool, user_id, session=session)
 
 
 @router.post("/{user_id}/papeis/conceder")
@@ -149,7 +176,7 @@ async def conceder_papel(
 
 @router.post("/{user_id}/papeis/{papel_id}/revogar")
 async def revogar_papel(
-    user_id: str, papel_id: str, request: Request, *, pool: PoolDep
+    user_id: str, papel_id: str, request: Request, *, pool: PoolDep, session: AdminSession
 ) -> Response:
     papel = await da.fetch_papel(pool, papel_id)
     e_papel_admin_do_portal = (
@@ -162,6 +189,7 @@ async def revogar_papel(
                 request,
                 pool,
                 user_id,
+                session=session,
                 error=(
                     "Nao e possivel revogar: este e o ultimo administrador do portal. "
                     "Promova outro usuario a admin antes de revogar este."
@@ -173,7 +201,12 @@ async def revogar_papel(
 
 @router.post("/{user_id}/redefinir-senha")
 async def redefinir_senha(
-    user_id: str, request: Request, *, pool: PoolDep, admin_client: AdminClientDep
+    user_id: str,
+    request: Request,
+    *,
+    pool: PoolDep,
+    admin_client: AdminClientDep,
+    session: AdminSession,
 ) -> Response:
     await _fetch_usuario_ou_404(pool, user_id)
     nova_senha = secrets.token_urlsafe(16)
@@ -181,11 +214,19 @@ async def redefinir_senha(
         await admin_client.reset_password(user_id=user_id, new_password=nova_senha)
     except WeakPasswordError as exc:
         return await _render_detalhe(
-            request, pool, user_id, error="senha gerada rejeitada: " + "; ".join(exc.reasons)
+            request,
+            pool,
+            user_id,
+            session=session,
+            error="senha gerada rejeitada: " + "; ".join(exc.reasons),
         )
     except AdminApiError:
         return await _render_detalhe(
-            request, pool, user_id, error="erro ao redefinir senha, tente novamente"
+            request,
+            pool,
+            user_id,
+            session=session,
+            error="erro ao redefinir senha, tente novamente",
         )
 
     return redirect_com_segredo(
@@ -198,11 +239,11 @@ async def redefinir_senha(
 
 
 @router.get("/{user_id}/segredo")
-async def segredo(user_id: str, request: Request) -> Response:
+async def segredo(user_id: str, request: Request, *, session: AdminSession) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     payload = read_flash_secret(request)
     response = templates.TemplateResponse(
-        request, "admin/segredo_revelado.html", {"segredo": payload}
+        request, "admin/segredo_revelado.html", {"segredo": payload, "session": session}
     )
     response.delete_cookie(FLASH_SECRET_COOKIE_NAME)
     return response
