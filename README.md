@@ -892,13 +892,16 @@ docker compose ps
   login funcionando e fluxo completo `/authorize` → `/token` → `/callback`
   testado ponta a ponta contra o Supabase de verdade (não só contra os
   fakes dos testes)
+- `sql/0005_admin_role.sql` aplicada na VM do lab, bootstrap manual do
+  primeiro administrador feito e `SUPABASE_SECRET_KEY` configurada no
+  `.env` do portal (valor pego via `sh run.sh secrets` no Supabase)
 
 **Pendente**
 
 - MCP: `tools/call` com erro de autenticação do `supabase_read_only_user`
-- Aplicar `sql/0005_admin_role.sql` na VM do lab e fazer o bootstrap manual
-  do primeiro administrador (ver `portal/README.md`) — feito só em
-  desenvolvimento até aqui, não confirmado na VM
+- Confirmar acesso a `/admin` na VM após o rebuild do portal com
+  `SUPABASE_SECRET_KEY` (login/refresh do usuário promovido a admin +
+  navegar até `http://portal.lab.internal/admin`)
 - Storage marcado `unhealthy` pelo healthcheck (serviço sobe normalmente)
 - Logout não propagado entre portal e apps clientes (cada um desloga por
   conta própria — ver `portal/README.md`, limitação conhecida e decisão
