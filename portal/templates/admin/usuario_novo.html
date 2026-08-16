@@ -1,0 +1,25 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Novo usuario - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  <h2>Novo usuario</h2>
+  {% if error %}
+    <p class="error">{{ error }}</p>
+    {% if busca_url %}<p><a href="{{ busca_url }}">Buscar esse e-mail</a></p>{% endif %}
+  {% endif %}
+  <form method="post" action="/admin/usuarios/novo">
+    <label>E-mail<input type="email" name="email" required></label>
+    <label>
+      Perfil inicial (opcional)
+      <select name="papel_inicial">
+        <option value="">-- nenhum --</option>
+        {% for p in papeis_disponiveis %}
+          <option value="{{ p.id }}">{{ p.aplicacao_nome }} / {{ p.codigo }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Criar</button>
+  </form>
+  <p class="hint">A senha inicial e gerada automaticamente e mostrada uma unica vez apos a criacao.</p>
+{% endblock %}

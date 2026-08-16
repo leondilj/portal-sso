@@ -1,0 +1,12 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Administracao - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  <h2>Administracao</h2>
+  <p>Logado como {{ session.email }}.</p>
+  <ul>
+    <li><a href="/admin/sistemas">Sistemas</a> - aplicacoes, credenciais OAuth e perfis</li>
+    <li><a href="/admin/usuarios">Usuarios</a> - buscar, criar e conceder perfis</li>
+  </ul>
+{% endblock %}

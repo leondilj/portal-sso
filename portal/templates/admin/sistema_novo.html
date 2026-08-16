@@ -1,0 +1,20 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Novo sistema - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  <h2>Novo sistema</h2>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post" action="/admin/sistemas/novo">
+    <label>
+      ID (usado como identificador do cliente, ex.: "vendas")
+      <input type="text" name="aplicacao_id" required pattern="[a-z0-9_-]+">
+    </label>
+    <label>Nome<input type="text" name="nome" required></label>
+    <label>Descricao<input type="text" name="descricao"></label>
+    <label>URL<input type="url" name="url" required></label>
+    <label>Icone (opcional)<input type="text" name="icone"></label>
+    <label>Ordem<input type="number" name="ordem" value="0"></label>
+    <button type="submit">Criar</button>
+  </form>
+{% endblock %}

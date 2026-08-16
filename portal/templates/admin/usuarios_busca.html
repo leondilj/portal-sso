@@ -1,0 +1,30 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Usuarios - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  <h2>Usuarios</h2>
+  <p><a href="/admin/usuarios/novo">+ Novo usuario</a></p>
+  <form method="get" action="/admin/usuarios">
+    <label>Buscar por e-mail<input type="text" name="q" value="{{ q }}"></label>
+    <button type="submit">Buscar</button>
+  </form>
+  {% if q %}
+    <table class="data-table">
+      <thead>
+        <tr><th>E-mail</th><th>Criado em</th><th>Confirmado</th></tr>
+      </thead>
+      <tbody>
+        {% for u in resultados %}
+          <tr>
+            <td><a href="/admin/usuarios/{{ u.id }}">{{ u.email }}</a></td>
+            <td>{{ u.created_at }}</td>
+            <td>{% if u.email_confirmed_at %}sim{% else %}nao{% endif %}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="3">Nenhum usuario encontrado para "{{ q }}".</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+{% endblock %}

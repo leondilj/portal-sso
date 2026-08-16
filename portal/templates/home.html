@@ -5,6 +5,9 @@
 {% block content %}
   <p class="logged-in-as">
     Logado como {{ session.email }}
+    {% if "admin" in session.acessos.get("portal", []) %}
+      <a href="/admin">Administracao</a>
+    {% endif %}
     <form method="post" action="/logout" class="logout-form">
       <button type="submit">Sair</button>
     </form>

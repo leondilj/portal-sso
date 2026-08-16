@@ -1,0 +1,23 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}{% if papel %}Editar{% else %}Novo{% endif %} perfil - {{ sistema.nome }}{% endblock %}
+
+{% block admin_content %}
+  <h2>{% if papel %}Editar perfil{% else %}Novo perfil{% endif %} - {{ sistema.nome }}</h2>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post">
+    <label>
+      Codigo
+      {% if papel %}
+        <input type="text" value="{{ papel.codigo }}" disabled>
+        <span class="hint">codigo nao pode ser alterado depois de criado (usado nas integracoes)</span>
+      {% else %}
+        <input type="text" name="codigo" required pattern="[a-z0-9_-]+">
+      {% endif %}
+    </label>
+    <label>Nome<input type="text" name="nome" value="{{ papel.nome if papel else '' }}" required></label>
+    <label>Descricao<input type="text" name="descricao" value="{{ papel.descricao if papel else '' }}"></label>
+    <button type="submit">Salvar</button>
+  </form>
+  <p><a href="/admin/sistemas/{{ sistema.id }}/perfis">Voltar</a></p>
+{% endblock %}

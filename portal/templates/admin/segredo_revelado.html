@@ -1,0 +1,17 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Segredo - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  {% if segredo %}
+    <h2>{{ segredo.titulo }}</h2>
+    <p class="secret-reveal"><code>{{ segredo.valor }}</code></p>
+    <p class="error">{{ segredo.aviso }}</p>
+    <p><a href="{{ segredo.voltar_url }}">Continuar</a></p>
+  {% else %}
+    <p class="error">
+      Nada para exibir - o valor ja foi mostrado ou expirou. Gere um novo se precisar.
+    </p>
+    <p><a href="/admin">Voltar ao painel</a></p>
+  {% endif %}
+{% endblock %}

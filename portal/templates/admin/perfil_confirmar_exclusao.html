@@ -1,0 +1,16 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Excluir perfil - {{ sistema.nome }}{% endblock %}
+
+{% block admin_content %}
+  <h2>Excluir perfil "{{ papel.codigo }}" - {{ sistema.nome }}</h2>
+  {% if total_usuarios > 0 %}
+    <p class="error">{{ total_usuarios }} usuario(s) perdem este perfil se voce confirmar.</p>
+  {% else %}
+    <p>Nenhum usuario tem este perfil atualmente.</p>
+  {% endif %}
+  <form method="post" class="confirm-danger">
+    <button type="submit">Confirmar exclusao</button>
+  </form>
+  <p><a href="/admin/sistemas/{{ sistema.id }}/perfis">Cancelar</a></p>
+{% endblock %}

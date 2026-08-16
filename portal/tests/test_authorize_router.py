@@ -40,8 +40,8 @@ def test_authorize_success_issues_code_and_redirects(harness, fake_pool) -> None
 
 
 def test_authorize_app_without_client_registered_returns_502(harness) -> None:
-    harness.set_session(_session({"vendas": ["analista"]}))
+    harness.set_session(_session({"semcliente": ["algo"]}))
 
-    response = harness.client.get("/authorize", params={"app_id": "vendas"})
+    response = harness.client.get("/authorize", params={"app_id": "semcliente"})
 
     assert response.status_code == 502

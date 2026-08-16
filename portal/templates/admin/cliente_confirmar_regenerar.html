@@ -1,0 +1,15 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Regenerar secret - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  <h2>Regenerar client secret - {{ sistema.nome }}</h2>
+  <p class="error">
+    Isso invalida o secret atual imediatamente. Qualquer integracao usando o
+    secret antigo para de funcionar ate ser atualizada com o novo.
+  </p>
+  <form method="post" class="confirm-danger">
+    <button type="submit">Confirmar regeneracao</button>
+  </form>
+  <p><a href="/admin/sistemas/{{ sistema.id }}">Cancelar</a></p>
+{% endblock %}

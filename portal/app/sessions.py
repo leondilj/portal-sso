@@ -8,6 +8,9 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 SESSION_COOKIE_NAME = "portal_session"
 _SALT = "portal-session"
 
+FLASH_SECRET_COOKIE_NAME = "portal_flash_secret"
+_FLASH_SALT = "portal-flash-secret"
+
 
 @dataclass
 class SessionData:
@@ -41,3 +44,29 @@ class SessionManager:
         except (BadSignature, SignatureExpired):
             return None
         return SessionData(**payload)
+
+
+class OneTimeSecretCookie:
+    """Cookie assinado de vida curta (~5min) para revelar um segredo
+    (client_secret novo/regenerado, senha inicial de usuario) exatamente
+    uma vez, via POST-redirect-GET: o handler que gera o segredo grava esse
+    cookie e redireciona para uma rota GET de revelacao; essa rota decodifica
+    o valor e o router chama `response.delete_cookie(FLASH_SECRET_COOKIE_NAME)`
+    na MESMA resposta - um refresh ou voltar/avancar no navegador nunca
+    mostra o valor de novo, porque a garantia vem do ciclo de vida do
+    cookie, nao de o template "so imprimir uma vez".
+    """
+
+    def __init__(self, secret: str, max_age_seconds: int = 300) -> None:
+        self._serializer = URLSafeTimedSerializer(secret, salt=_FLASH_SALT)
+        self._max_age = max_age_seconds
+
+    def encode(self, payload: dict[str, str]) -> str:
+        return self._serializer.dumps(payload)
+
+    def decode(self, cookie_value: str) -> dict[str, str] | None:
+        try:
+            payload: Any = self._serializer.loads(cookie_value, max_age=self._max_age)
+        except (BadSignature, SignatureExpired):
+            return None
+        return payload

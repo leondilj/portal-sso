@@ -5,15 +5,20 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exception_handlers import http_exception_handler as default_http_exception_handler
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import db
 from app.config import Settings
 from app.jwt_verify import JWKSVerifier
 from app.routers import auth, home, oauth
-from app.sessions import SessionManager
+from app.routers.admin import router as admin_router
+from app.sessions import OneTimeSecretCookie, SessionManager
+from app.supabase_admin_client import SupabaseAdminClient
 from app.supabase_client import SupabaseAuthClient
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,11 +59,25 @@ def create_app(
     app.state.session_manager = SessionManager(
         settings.portal_session_secret, settings.portal_session_max_age_seconds
     )
+    app.state.supabase_admin_client = SupabaseAdminClient(
+        settings.supabase_url, settings.supabase_secret_key
+    )
+    # Reaproveita o secret da sessao (com um salt distinto - ver
+    # sessions.py) em vez de exigir mais uma env var so pra isso.
+    app.state.flash_secret_cookie = OneTimeSecretCookie(settings.portal_session_secret)
 
     app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
     app.include_router(auth.router)
     app.include_router(home.router)
     app.include_router(oauth.router)
+    app.include_router(admin_router)
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> Response:
+        if exc.status_code == 403:
+            templates: Jinja2Templates = request.app.state.templates
+            return templates.TemplateResponse(request, "403.html", {}, status_code=403)
+        return await default_http_exception_handler(request, exc)
 
     return app
 

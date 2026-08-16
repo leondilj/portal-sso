@@ -1,0 +1,48 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}{{ sistema.nome }} - Portal SSO{% endblock %}
+
+{% block admin_content %}
+  <h2>{{ sistema.nome }} ({{ sistema.id }})</h2>
+
+  <section>
+    <h3>Dados do sistema</h3>
+    <form method="post" action="/admin/sistemas/{{ sistema.id }}">
+      <label>Nome<input type="text" name="nome" value="{{ sistema.nome }}" required></label>
+      <label>Descricao<input type="text" name="descricao" value="{{ sistema.descricao or '' }}"></label>
+      <label>URL<input type="url" name="url" value="{{ sistema.url }}" required></label>
+      <label>Icone<input type="text" name="icone" value="{{ sistema.icone or '' }}"></label>
+      <label>Ordem<input type="number" name="ordem" value="{{ sistema.ordem }}"></label>
+      <button type="submit">Salvar</button>
+    </form>
+    {% if sistema.ativo %}
+      <form method="post" action="/admin/sistemas/{{ sistema.id }}/desativar" class="confirm-danger">
+        <button type="submit">Desativar</button>
+      </form>
+    {% else %}
+      <form method="post" action="/admin/sistemas/{{ sistema.id }}/ativar">
+        <button type="submit">Reativar</button>
+      </form>
+    {% endif %}
+  </section>
+
+  <section>
+    <h3>Cliente OAuth</h3>
+    {% if cliente %}
+      <p>Configurado. Redirect URI: <code>{{ cliente.redirect_uris[0] }}</code></p>
+      <p>
+        <a href="/admin/sistemas/{{ sistema.id }}/cliente/editar">Editar redirect URI</a>
+        &nbsp;|&nbsp;
+        <a href="/admin/sistemas/{{ sistema.id }}/cliente/regenerar">Regenerar secret</a>
+      </p>
+    {% else %}
+      <p>Este sistema ainda nao esta configurado como cliente OAuth.</p>
+      <p><a href="/admin/sistemas/{{ sistema.id }}/cliente/novo">Configurar como cliente OAuth</a></p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h3>Perfis</h3>
+    <p><a href="/admin/sistemas/{{ sistema.id }}/perfis">Gerenciar perfis ({{ perfis|length }})</a></p>
+  </section>
+{% endblock %}

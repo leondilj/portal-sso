@@ -647,6 +647,15 @@ Docker) estão em [`portal/README.md`](portal/README.md). Escopo desta
 primeira versão: login, listagem de aplicações, `GET /authorize` e
 `POST /token`.
 
+Uma área administrativa (`/admin`) permite cadastrar sistemas, credenciais
+de cliente OAuth, perfis e usuários pela própria interface, substituindo o
+SQL manual usado até então — reaproveita o mesmo modelo papel-por-aplicação
+(o próprio portal é cadastrado como mais uma "aplicação", via
+[`sql/0005_admin_role.sql`](sql/0005_admin_role.sql)) e cria usuários de
+verdade no Supabase via GoTrue Admin API. Detalhes, incluindo o passo de
+bootstrap manual do primeiro administrador, em
+[`portal/README.md`](portal/README.md#área-administrativa-admin).
+
 O lado "aplicação cliente" desse fluxo está demonstrado em
 [`qualidade/`](qualidade/): recebe o `code`, troca por token no portal,
 valida a assinatura via JWKS por conta própria (sem confiar no portal) e
@@ -868,24 +877,32 @@ docker compose ps
 - Chaves assimétricas ES256 + JWKS
 - Login validado com token contendo os papéis corretos
 - Portal FastAPI implementado (`portal/`): login, listagem de aplicações,
-  `GET /authorize`, `POST /token` — suíte de testes (mocks/fakes, sem
-  Supabase/Postgres/Docker reais no ambiente de desenvolvimento) passando
+  `GET /authorize`, `POST /token`, área administrativa (`/admin`) para
+  cadastrar sistemas/credenciais OAuth/perfis/usuários — suíte de testes
+  (mocks/fakes, sem Supabase/Postgres/Docker reais no ambiente de
+  desenvolvimento) passando
 - Migrations SQL do schema do portal prontas em `sql/` (aplicações/papéis,
-  hook, `app_clients`/`auth_codes`)
+  hook, `app_clients`/`auth_codes`, papel `admin` do próprio portal)
 - Aplicação cliente de exemplo implementada (`qualidade/`): troca o code no
   `/callback`, valida o JWT via JWKS por conta própria, mostra o papel do
   usuário em Qualidade e uma área restrita a `gerente` — suíte de testes
   (mocks/fakes) passando
+- **Deploy real na VM do lab validado**: migrations aplicadas, hook
+  ativado, Caddy roteando `portal.lab.internal`/`qualidade.lab.internal`,
+  login funcionando e fluxo completo `/authorize` → `/token` → `/callback`
+  testado ponta a ponta contra o Supabase de verdade (não só contra os
+  fakes dos testes)
 
 **Pendente**
 
 - MCP: `tools/call` com erro de autenticação do `supabase_read_only_user`
-- Aplicar as migrations de `sql/` e validar o Portal FastAPI + a app
-  Qualidade de ponta a ponta contra o Supabase real da VM do lab (login,
-  hook, `/authorize` → `/token` → `/callback`)
-- Adicionar o bloco de Caddy para `qualidade.lab.internal` na VM do lab
-  (documentado em `qualidade/README.md`, ainda não aplicado)
+- Aplicar `sql/0005_admin_role.sql` na VM do lab e fazer o bootstrap manual
+  do primeiro administrador (ver `portal/README.md`) — feito só em
+  desenvolvimento até aqui, não confirmado na VM
 - Storage marcado `unhealthy` pelo healthcheck (serviço sobe normalmente)
+- Logout não propagado entre portal e apps clientes (cada um desloga por
+  conta própria — ver `portal/README.md`, limitação conhecida e decisão
+  deliberada, não bug)
 
 **Higiene antes de sair do lab**
 
@@ -893,6 +910,8 @@ docker compose ps
 - Trocar senha do usuário de teste
 - Endurecer `PASSWORD_MIN_LENGTH` / `PASSWORD_REQUIRED_CHARACTERS`
 - Rotacionar secrets expostos durante o setup
+- Adicionar token CSRF nas ações destrutivas da área admin (hoje depende só
+  de `samesite=lax`, ver `portal/README.md`)
 
 ---
 

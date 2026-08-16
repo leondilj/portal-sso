@@ -34,6 +34,20 @@ def test_home_lists_only_accessible_active_apps_in_order(harness) -> None:
     assert body.index("Qualidade") < body.index("Vendas")
 
 
+def test_home_app_without_client_credentials_is_not_shown_as_tile(harness) -> None:
+    """Regressao: uma aplicacao presente em acessos e ativa, mas sem linha
+    em app_clients (ex.: o proprio 'portal', que nao e um cliente OAuth
+    redirecionado via /authorize), nao deve aparecer como tile clicavel -
+    clicar levaria a um 502 em /authorize."""
+    harness.set_session(_session({"qualidade": ["gerente"], "semcliente": ["algo"]}))
+
+    response = harness.client.get("/")
+
+    assert response.status_code == 200
+    assert "Qualidade" in response.text
+    assert "SemCliente" not in response.text
+
+
 def test_home_empty_acessos_shows_empty_state(harness) -> None:
     harness.set_session(_session({}))
 

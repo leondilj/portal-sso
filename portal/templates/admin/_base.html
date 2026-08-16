@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <nav class="admin-nav">
+    <a href="/admin">Painel</a> |
+    <a href="/admin/sistemas">Sistemas</a> |
+    <a href="/admin/usuarios">Usuarios</a> |
+    <a href="/">Voltar ao portal</a>
+  </nav>
+  {% block admin_content %}{% endblock %}
+{% endblock %}

@@ -7,6 +7,12 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_publishable_key: str
     supabase_jwks_url: str
+    # Service-role key do Supabase - categoricamente mais sensivel que a
+    # publishable key acima (concede acesso admin ao GoTrue: criar/editar
+    # qualquer usuario, resetar senha de qualquer um). So usada pelo
+    # SupabaseAdminClient (area /admin), nunca logada nem exposta a
+    # templates/apps clientes.
+    supabase_secret_key: str
 
     portal_database_url: str
 

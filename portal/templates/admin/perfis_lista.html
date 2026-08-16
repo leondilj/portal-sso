@@ -1,0 +1,30 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Perfis - {{ sistema.nome }}{% endblock %}
+
+{% block admin_content %}
+  <h2>Perfis - {{ sistema.nome }}</h2>
+  <p><a href="/admin/sistemas/{{ sistema.id }}/perfis/novo">+ Novo perfil</a></p>
+  <table class="data-table">
+    <thead>
+      <tr><th>Codigo</th><th>Nome</th><th>Descricao</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for p in perfis %}
+        <tr>
+          <td>{{ p.codigo }}</td>
+          <td>{{ p.nome }}</td>
+          <td>{{ p.descricao or "" }}</td>
+          <td>
+            <a href="/admin/sistemas/{{ sistema.id }}/perfis/{{ p.id }}/editar">Editar</a>
+            &nbsp;
+            <a href="/admin/sistemas/{{ sistema.id }}/perfis/{{ p.id }}/excluir">Excluir</a>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">Nenhum perfil cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p><a href="/admin/sistemas/{{ sistema.id }}">Voltar ao sistema</a></p>
+{% endblock %}

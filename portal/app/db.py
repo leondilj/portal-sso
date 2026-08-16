@@ -51,10 +51,11 @@ async def fetch_apps_for_acessos(pool: Queryable, acessos: dict) -> list[AppTile
         return []
     rows = await pool.fetch(
         """
-        select id, nome, descricao, url, icone
-        from public.aplicacoes
-        where id = any($1::text[]) and ativo = true
-        order by ordem, nome
+        select a.id, a.nome, a.descricao, a.url, a.icone
+        from public.aplicacoes a
+        join public.app_clients ac on ac.aplicacao_id = a.id
+        where a.id = any($1::text[]) and a.ativo = true
+        order by a.ordem, a.nome
         """,
         app_ids,
     )
