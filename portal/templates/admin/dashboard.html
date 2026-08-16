@@ -3,10 +3,23 @@
 {% block title %}Administracao - Portal SSO{% endblock %}
 
 {% block admin_content %}
-  <h2>Administracao</h2>
-  <p>Logado como {{ session.email }}.</p>
-  <ul>
-    <li><a href="/admin/sistemas">Sistemas</a> - aplicacoes, credenciais OAuth e perfis</li>
-    <li><a href="/admin/usuarios">Usuarios</a> - buscar, criar e conceder perfis</li>
-  </ul>
+  <div class="page-header">
+    <div>
+      <h2>Administracao</h2>
+      <p class="page-header__subtitle">Logado como {{ session.email }}.</p>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <a class="dashboard-card" href="/admin/sistemas">
+      <span class="dashboard-card__icon">&#9881;</span>
+      <span class="dashboard-card__title">Sistemas</span>
+      <span class="dashboard-card__desc">Aplicacoes, credenciais OAuth e perfis de acesso.</span>
+    </a>
+    <a class="dashboard-card" href="/admin/usuarios">
+      <span class="dashboard-card__icon">&#128100;</span>
+      <span class="dashboard-card__title">Usuarios</span>
+      <span class="dashboard-card__desc">Buscar, criar usuarios e conceder perfis.</span>
+    </a>
+  </div>
 {% endblock %}

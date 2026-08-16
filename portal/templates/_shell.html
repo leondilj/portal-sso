@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block body %}
+  <div class="app-shell">
+    <aside class="app-sidebar">
+      <a class="app-sidebar__brand" href="/">
+        <span class="brand__mark">KOVER</span>
+        <span class="brand__product">Portal SSO</span>
+      </a>
+
+      <nav class="app-sidebar__nav">
+        <a href="/" class="{{ 'is-active' if request.url.path == '/' else '' }}">Minhas aplicacoes</a>
+        {% if session and "admin" in session.acessos.get("portal", []) %}
+          <span class="app-sidebar__section">Administracao</span>
+          <a href="/admin" class="{{ 'is-active' if request.url.path == '/admin' else '' }}">Painel</a>
+          <a href="/admin/sistemas" class="{{ 'is-active' if request.url.path.startswith('/admin/sistemas') else '' }}">Sistemas</a>
+          <a href="/admin/usuarios" class="{{ 'is-active' if request.url.path.startswith('/admin/usuarios') else '' }}">Usuarios</a>
+        {% endif %}
+      </nav>
+
+      {% if session %}
+        <div class="app-sidebar__user">
+          <span class="user-avatar">{{ session.email[0]|upper }}</span>
+          <span class="user-meta">
+            <span class="user-name">{{ session.email.split("@")[0]|replace(".", " ")|title }}</span>
+            <span class="user-role">{{ "Administrador" if "admin" in session.acessos.get("portal", []) else "Usuario" }}</span>
+          </span>
+          <form method="post" action="/logout" class="logout-form" title="Sair">
+            <button type="submit" class="btn-logout" aria-label="Sair">&#9211;</button>
+          </form>
+        </div>
+      {% endif %}
+    </aside>
+
+    <main class="app-shell__main">
+      {% block shell_content %}{% endblock %}
+    </main>
+  </div>
+{% endblock %}

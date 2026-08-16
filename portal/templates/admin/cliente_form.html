@@ -3,11 +3,19 @@
 {% block title %}{{ acao }} cliente OAuth - Portal SSO{% endblock %}
 
 {% block admin_content %}
-  <h2>{{ acao }} cliente OAuth - {{ sistema.nome }}</h2>
-  {% if error %}<p class="error">{{ error }}</p>{% endif %}
-  <form method="post">
-    <label>Redirect URI<input type="url" name="redirect_uri" value="{{ redirect_uri }}" required></label>
-    <button type="submit">{{ acao }}</button>
-  </form>
+  <div class="page-header">
+    <div>
+      <h2>{{ acao }} cliente OAuth</h2>
+      <p class="page-header__subtitle">{{ sistema.nome }}</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <form method="post">
+      <label>Redirect URI<input type="url" name="redirect_uri" value="{{ redirect_uri }}" required></label>
+      <button type="submit" class="btn btn-primary">{{ acao }}</button>
+    </form>
+  </div>
   <p><a href="/admin/sistemas/{{ sistema.id }}">Voltar</a></p>
 {% endblock %}

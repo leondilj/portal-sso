@@ -4,10 +4,7 @@
 
 {% block content %}
   {% if session %}
-    <p class="logged-in-as">
-      Logado como {{ session.email }}
-      <a class="logout-link" href="/logout">Sair</a>
-    </p>
+    <h2>Inicio</h2>
     <p>Seu papel em Qualidade: <strong>{{ session.papeis | join(", ") }}</strong></p>
 
     {% if "gerente" in session.papeis %}

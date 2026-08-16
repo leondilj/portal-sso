@@ -1,17 +1,14 @@
-{% extends "base.html" %}
+{% extends "_shell.html" %}
 
 {% block title %}Minhas aplicacoes - Portal SSO{% endblock %}
 
-{% block content %}
-  <p class="logged-in-as">
-    Logado como {{ session.email }}
-    {% if "admin" in session.acessos.get("portal", []) %}
-      <a href="/admin">Administracao</a>
-    {% endif %}
-    <form method="post" action="/logout" class="logout-form">
-      <button type="submit">Sair</button>
-    </form>
-  </p>
+{% block shell_content %}
+  <div class="page-header">
+    <div>
+      <h2>Minhas aplicacoes</h2>
+      <p class="page-header__subtitle">Acesse os sistemas liberados para o seu usuario.</p>
+    </div>
+  </div>
 
   {% if apps %}
     <div class="app-grid">

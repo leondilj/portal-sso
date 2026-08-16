@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app import db_admin as da
-from app.deps import PoolDep
+from app.deps import AdminSession, PoolDep
 from app.models import AplicacaoRow, PapelRow
 
 router = APIRouter(prefix="/sistemas/{aplicacao_id}/perfis")
@@ -26,21 +26,29 @@ async def _fetch_papel_ou_404(pool: object, papel_id: str) -> PapelRow:
 
 
 @router.get("")
-async def listar(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Response:
+async def listar(
+    aplicacao_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
     perfis = await da.list_papeis(pool, aplicacao_id)
     return templates.TemplateResponse(
-        request, "admin/perfis_lista.html", {"sistema": sistema, "perfis": perfis}
+        request,
+        "admin/perfis_lista.html",
+        {"sistema": sistema, "perfis": perfis, "session": session},
     )
 
 
 @router.get("/novo")
-async def novo_form(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Response:
+async def novo_form(
+    aplicacao_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
     return templates.TemplateResponse(
-        request, "admin/perfil_form.html", {"sistema": sistema, "papel": None, "error": None}
+        request,
+        "admin/perfil_form.html",
+        {"sistema": sistema, "papel": None, "error": None, "session": session},
     )
 
 
@@ -50,6 +58,7 @@ async def criar(
     request: Request,
     *,
     pool: PoolDep,
+    session: AdminSession,
     codigo: str = Form(...),
     nome: str = Form(...),
     descricao: str = Form(""),
@@ -68,6 +77,7 @@ async def criar(
                 "sistema": sistema,
                 "papel": None,
                 "error": f"ja existe um perfil com o codigo '{codigo}' neste sistema",
+                "session": session,
             },
         )
     return RedirectResponse(url=f"/admin/sistemas/{aplicacao_id}/perfis", status_code=303)
@@ -75,13 +85,15 @@ async def criar(
 
 @router.get("/{papel_id}/editar")
 async def editar_form(
-    aplicacao_id: str, papel_id: str, request: Request, *, pool: PoolDep
+    aplicacao_id: str, papel_id: str, request: Request, *, pool: PoolDep, session: AdminSession
 ) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
     papel = await _fetch_papel_ou_404(pool, papel_id)
     return templates.TemplateResponse(
-        request, "admin/perfil_form.html", {"sistema": sistema, "papel": papel, "error": None}
+        request,
+        "admin/perfil_form.html",
+        {"sistema": sistema, "papel": papel, "error": None, "session": session},
     )
 
 
@@ -101,7 +113,7 @@ async def editar(
 
 @router.get("/{papel_id}/excluir")
 async def excluir_confirmar(
-    aplicacao_id: str, papel_id: str, request: Request, *, pool: PoolDep
+    aplicacao_id: str, papel_id: str, request: Request, *, pool: PoolDep, session: AdminSession
 ) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
@@ -110,7 +122,12 @@ async def excluir_confirmar(
     return templates.TemplateResponse(
         request,
         "admin/perfil_confirmar_exclusao.html",
-        {"sistema": sistema, "papel": papel, "total_usuarios": total_usuarios},
+        {
+            "sistema": sistema,
+            "papel": papel,
+            "total_usuarios": total_usuarios,
+            "session": session,
+        },
     )
 
 

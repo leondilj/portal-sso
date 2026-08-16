@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app import db_admin as da
-from app.deps import PoolDep
+from app.deps import AdminSession, PoolDep
 from app.models import AplicacaoRow
 from app.routers.admin._flash import read_flash_secret, redirect_com_segredo
 from app.sessions import FLASH_SECRET_COOKIE_NAME
@@ -23,7 +23,9 @@ async def _fetch_sistema_ou_404(pool: object, aplicacao_id: str) -> AplicacaoRow
 
 
 @router.get("/novo")
-async def configurar_form(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Response:
+async def configurar_form(
+    aplicacao_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
     if await da.fetch_app_client_summary(pool, aplicacao_id) is not None:
@@ -31,7 +33,13 @@ async def configurar_form(aplicacao_id: str, request: Request, *, pool: PoolDep)
     return templates.TemplateResponse(
         request,
         "admin/cliente_form.html",
-        {"sistema": sistema, "redirect_uri": "", "acao": "Configurar", "error": None},
+        {
+            "sistema": sistema,
+            "redirect_uri": "",
+            "acao": "Configurar",
+            "error": None,
+            "session": session,
+        },
     )
 
 
@@ -54,7 +62,9 @@ async def configurar(
 
 
 @router.get("/editar")
-async def editar_form(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Response:
+async def editar_form(
+    aplicacao_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
     cliente = await da.fetch_app_client_summary(pool, aplicacao_id)
@@ -68,6 +78,7 @@ async def editar_form(aplicacao_id: str, request: Request, *, pool: PoolDep) -> 
             "redirect_uri": cliente.redirect_uris[0] if cliente.redirect_uris else "",
             "acao": "Salvar",
             "error": None,
+            "session": session,
         },
     )
 
@@ -84,14 +95,18 @@ async def editar(
 
 
 @router.get("/regenerar")
-async def regenerar_confirmar(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Response:
+async def regenerar_confirmar(
+    aplicacao_id: str, request: Request, *, pool: PoolDep, session: AdminSession
+) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     sistema = await _fetch_sistema_ou_404(pool, aplicacao_id)
     cliente = await da.fetch_app_client_summary(pool, aplicacao_id)
     if cliente is None:
         raise HTTPException(status_code=404, detail="sistema ainda nao configurado como cliente")
     return templates.TemplateResponse(
-        request, "admin/cliente_confirmar_regenerar.html", {"sistema": sistema}
+        request,
+        "admin/cliente_confirmar_regenerar.html",
+        {"sistema": sistema, "session": session},
     )
 
 
@@ -117,11 +132,11 @@ async def regenerar(aplicacao_id: str, request: Request, *, pool: PoolDep) -> Re
 
 
 @router.get("/segredo")
-async def segredo(aplicacao_id: str, request: Request) -> Response:
+async def segredo(aplicacao_id: str, request: Request, *, session: AdminSession) -> Response:
     templates: Jinja2Templates = request.app.state.templates
     payload = read_flash_secret(request)
     response = templates.TemplateResponse(
-        request, "admin/segredo_revelado.html", {"segredo": payload}
+        request, "admin/segredo_revelado.html", {"segredo": payload, "session": session}
     )
     response.delete_cookie(FLASH_SECRET_COOKIE_NAME)
     return response

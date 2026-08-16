@@ -1,30 +1,247 @@
+/* =========================================================================
+   Tokens de design — mantidos em sincronia manualmente com
+   portal/static/style.css (nao ha build/static compartilhado entre os dois
+   apps). Ver esse arquivo para a origem/justificativa dos valores.
+   ========================================================================= */
+:root {
+  --color-primary: #13222e;
+  --color-primary-dark: #0c161f;
+  --color-accent: #8fc93e;
+  --color-accent-dark: #6ea82b;
+
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5f66;
+  --color-border: #d8dade;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f4f5f7;
+  --color-surface-sunken: #eceef1;
+  --color-on-dark: #ffffff;
+  --color-on-dark-muted: rgba(255, 255, 255, 0.72);
+  --color-on-dark-border: rgba(255, 255, 255, 0.12);
+  --color-on-dark-hover: rgba(255, 255, 255, 0.08);
+
+  --font-sans: ui-rounded, "Quicksand", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-sm: 0.85rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius-sm: 0.25rem;
+  --sidebar-width: 15rem;
+  --focus-ring: 0 0 0 3px rgba(143, 201, 62, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: system-ui, sans-serif;
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+a {
+  color: var(--color-primary);
+}
+
+.bare-header {
+  background: var(--color-primary);
+  padding: var(--space-4) var(--space-6);
+}
+
+.bare-header .brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  text-decoration: none;
+}
+
+.bare-header .brand__mark {
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.02em;
+}
+
+.bare-header .brand__product {
+  color: var(--color-on-dark-muted);
+  font-size: var(--font-size-sm);
+}
+
+.bare-main {
   max-width: 40rem;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  color: #1a1a1a;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
 }
 
-header h1 {
-  font-size: 1.25rem;
-  margin-bottom: 0;
+/* --- shell autenticado (versao simplificada: sem itens de admin) ------- */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
 }
 
-.subtitle {
-  margin-top: 0.15rem;
-  color: #555;
-  font-size: 0.85rem;
+.app-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+  display: flex;
+  flex-direction: column;
 }
 
-.logged-in-as {
+.app-sidebar__brand {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-on-dark-border);
+}
+
+.app-sidebar__brand .brand__mark {
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.02em;
+}
+
+.app-sidebar__brand .brand__product {
+  color: var(--color-on-dark-muted);
+  font-size: var(--font-size-sm);
+}
+
+.app-sidebar__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  gap: 2px;
+}
+
+.app-sidebar__nav a {
+  color: var(--color-on-dark-muted);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}
+
+.app-sidebar__nav a:hover,
+.app-sidebar__nav a.is-active {
+  background: var(--color-on-dark-hover);
+  color: var(--color-on-dark);
+}
+
+.app-sidebar__user {
+  border-top: 1px solid var(--color-on-dark-border);
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-2);
 }
 
-.logout-link {
-  font-size: 0.85rem;
+.user-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: var(--font-size-sm);
+  color: var(--color-on-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-role {
+  font-size: 0.7rem;
+  color: var(--color-on-dark-muted);
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: var(--color-on-dark-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.btn-logout:hover {
+  color: var(--color-on-dark);
+}
+
+.app-shell__main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-6) var(--space-8);
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .app-sidebar__brand {
+    border-bottom: none;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .app-sidebar__nav {
+    flex-direction: row;
+    flex: 1;
+    overflow-x: auto;
+  }
+
+  .app-sidebar__user {
+    border-top: none;
+    border-left: 1px solid var(--color-on-dark-border);
+  }
+
+  .app-shell__main {
+    padding: var(--space-4);
+  }
 }
 
 .error {
@@ -32,5 +249,5 @@ header h1 {
 }
 
 .empty-state {
-  color: #555;
+  color: var(--color-text-muted);
 }

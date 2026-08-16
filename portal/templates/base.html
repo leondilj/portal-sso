@@ -7,11 +7,16 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header>
-    <h1>Portal SSO</h1>
-  </header>
-  <main>
-    {% block content %}{% endblock %}
-  </main>
+  {% block body %}
+    <header class="bare-header">
+      <a class="brand" href="/">
+        <span class="brand__mark">KOVER</span>
+        <span class="brand__product">Portal SSO</span>
+      </a>
+    </header>
+    <main class="bare-main">
+      {% block content %}{% endblock %}
+    </main>
+  {% endblock %}
 </body>
 </html>

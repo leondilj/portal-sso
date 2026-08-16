@@ -3,13 +3,23 @@
 {% block title %}Regenerar secret - Portal SSO{% endblock %}
 
 {% block admin_content %}
-  <h2>Regenerar client secret - {{ sistema.nome }}</h2>
-  <p class="error">
-    Isso invalida o secret atual imediatamente. Qualquer integracao usando o
-    secret antigo para de funcionar ate ser atualizada com o novo.
-  </p>
-  <form method="post" class="confirm-danger">
-    <button type="submit">Confirmar regeneracao</button>
-  </form>
-  <p><a href="/admin/sistemas/{{ sistema.id }}">Cancelar</a></p>
+  <div class="page-header">
+    <div>
+      <h2>Regenerar client secret</h2>
+      <p class="page-header__subtitle">{{ sistema.nome }}</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="error">
+      Isso invalida o secret atual imediatamente. Qualquer integracao usando o
+      secret antigo para de funcionar ate ser atualizada com o novo.
+    </p>
+    <div class="row-actions">
+      <form method="post" class="confirm-danger">
+        <button type="submit" class="btn btn-danger">Confirmar regeneracao</button>
+      </form>
+      <a class="btn btn-secondary" href="/admin/sistemas/{{ sistema.id }}">Cancelar</a>
+    </div>
+  </div>
 {% endblock %}
