@@ -37,8 +37,8 @@
 :root {
   --color-primary: #13222e;     /* azul-marinho escuro Kover */
   --color-primary-dark: #0c161f;
-  --color-accent: #8fc93e;      /* verde-limao Kover */
-  --color-accent-dark: #6ea82b;
+  --color-accent: #a7cd44;      /* verde Kover - valor exato, amostrado do logo real */
+  --color-accent-dark: #87a836;
 
   --color-text: #1a1a1a;
   --color-text-muted: #5a5f66;
@@ -76,7 +76,7 @@
   --shadow-sm: 0 1px 2px rgba(19, 34, 46, 0.08);
   --shadow-md: 0 4px 12px rgba(19, 34, 46, 0.14);
   --sidebar-width: 15rem;
-  --focus-ring: 0 0 0 3px rgba(143, 201, 62, 0.45);
+  --focus-ring: 0 0 0 3px rgba(167, 205, 68, 0.45);
 }
 
 /* =========================================================================
@@ -122,22 +122,14 @@ a {
 }
 
 .bare-header .brand {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
+  display: inline-flex;
   text-decoration: none;
 }
 
-.bare-header .brand__mark {
-  color: var(--color-accent);
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-  letter-spacing: 0.02em;
-}
-
-.bare-header .brand__product {
-  color: var(--color-on-dark-muted);
-  font-size: var(--font-size-sm);
+.brand__logo {
+  display: block;
+  height: 2.25rem;
+  width: auto;
 }
 
 .bare-main {
@@ -176,22 +168,12 @@ a {
 .app-sidebar__brand {
   padding: var(--space-4);
   display: flex;
-  flex-direction: column;
-  gap: 2px;
   text-decoration: none;
   border-bottom: 1px solid var(--color-on-dark-border);
 }
 
-.app-sidebar__brand .brand__mark {
-  color: var(--color-accent);
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-  letter-spacing: 0.02em;
-}
-
-.app-sidebar__brand .brand__product {
-  color: var(--color-on-dark-muted);
-  font-size: var(--font-size-sm);
+.app-sidebar__brand .brand__logo {
+  height: 2rem;
 }
 
 .app-sidebar__nav {

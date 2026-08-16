@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Portal SSO{% endblock %}</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -11,8 +12,7 @@
     <div class="bare-shell">
       <header class="bare-header">
         <a class="brand" href="/">
-          <span class="brand__mark">KOVER</span>
-          <span class="brand__product">Portal SSO</span>
+          <img class="brand__logo" src="/static/img/logo.png" alt="Kover">
         </a>
       </header>
       <main class="{% block main_class %}bare-main{% endblock %}">

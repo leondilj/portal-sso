@@ -35,8 +35,8 @@
 :root {
   --color-primary: #13222e;
   --color-primary-dark: #0c161f;
-  --color-accent: #8fc93e;
-  --color-accent-dark: #6ea82b;
+  --color-accent: #a7cd44;
+  --color-accent-dark: #87a836;
 
   --color-text: #1a1a1a;
   --color-text-muted: #5a5f66;
@@ -63,7 +63,7 @@
 
   --radius-sm: 0.25rem;
   --sidebar-width: 15rem;
-  --focus-ring: 0 0 0 3px rgba(143, 201, 62, 0.45);
+  --focus-ring: 0 0 0 3px rgba(167, 205, 68, 0.45);
 }
 
 * {
