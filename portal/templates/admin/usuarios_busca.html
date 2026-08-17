@@ -20,17 +20,18 @@
     <div class="table-wrap">
       <table class="data-table">
         <thead>
-          <tr><th>E-mail</th><th>Criado em</th><th>Confirmado</th></tr>
+          <tr><th>Nome</th><th>E-mail</th><th>Criado em</th><th>Confirmado</th></tr>
         </thead>
         <tbody>
           {% for u in resultados %}
             <tr>
+              <td>{{ u.nome or "" }}</td>
               <td><a href="/admin/usuarios/{{ u.id }}">{{ u.email }}</a></td>
               <td>{{ u.created_at }}</td>
               <td>{% if u.email_confirmed_at %}sim{% else %}nao{% endif %}</td>
             </tr>
           {% else %}
-            <tr><td colspan="3">Nenhum usuario encontrado para "{{ q }}".</td></tr>
+            <tr><td colspan="4">Nenhum usuario encontrado para "{{ q }}".</td></tr>
           {% endfor %}
         </tbody>
       </table>

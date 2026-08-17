@@ -36,6 +36,16 @@ async def test_create_user_success() -> None:
     assert sent.headers["apikey"] == "service-role-key"
 
 
+async def test_create_user_with_nome_envia_user_metadata() -> None:
+    with respx.mock:
+        route = respx.post(_USERS_URL).mock(return_value=httpx.Response(200, json=_USER_BODY))
+        client = SupabaseAdminClient("http://supabase.test", "service-role-key")
+        await client.create_user(email="novo@lab.internal", password="s3nh4-forte", nome="Joao")
+
+    sent = route.calls.last.request
+    assert b'"user_metadata":{"nome":"Joao"}' in sent.content
+
+
 async def test_create_user_duplicate_email() -> None:
     with respx.mock:
         respx.post(_USERS_URL).mock(

@@ -1,12 +1,13 @@
 {% extends "admin/_base.html" %}
 
-{% block title %}{{ usuario.email }} - Portal SSO{% endblock %}
+{% block title %}{{ usuario.nome or usuario.email }} - Portal SSO{% endblock %}
 
 {% block admin_content %}
   <div class="page-header">
     <div>
-      <h2>{{ usuario.email }}</h2>
+      <h2>{{ usuario.nome or usuario.email }}</h2>
       <p class="page-header__subtitle">
+        {% if usuario.nome %}{{ usuario.email }}. {% endif %}
         Criado em {{ usuario.created_at }}. Ultimo login: {{ usuario.last_sign_in_at or "nunca" }}.
       </p>
     </div>

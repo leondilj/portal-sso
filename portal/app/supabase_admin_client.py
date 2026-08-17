@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from supabase import AsyncClient, acreate_client
 from supabase_auth.errors import AuthApiError, AuthWeakPasswordError
@@ -49,15 +50,27 @@ class SupabaseAdminClient:
             self._client = await acreate_client(self._url, self._key)
         return self._client
 
-    async def create_user(self, *, email: str, password: str) -> AdminCreatedUser:
+    async def create_user(
+        self, *, email: str, password: str, nome: str | None = None
+    ) -> AdminCreatedUser:
         """Cria um usuario ja confirmado (email_confirm=True), sem depender
         de SMTP - o lab nao tem envio de e-mail configurado, entao um fluxo
-        de convite por link nao entregaria nada."""
+        de convite por link nao entregaria nada.
+
+        `nome`, se informado, vai em `user_metadata` - o GoTrue grava isso em
+        auth.users.raw_user_meta_data e expoe automaticamente como claim
+        `user_metadata.nome` no JWT; o trigger de sql/0006_profiles.sql
+        espelha o mesmo valor para public.profiles.nome."""
         client = await self._get_client()
+        payload: dict[str, Any] = {
+            "email": email,
+            "password": password,
+            "email_confirm": True,
+        }
+        if nome:
+            payload["user_metadata"] = {"nome": nome}
         try:
-            result = await client.auth.admin.create_user(
-                {"email": email, "password": password, "email_confirm": True}
-            )
+            result = await client.auth.admin.create_user(payload)  # type: ignore[arg-type]
         except AuthWeakPasswordError as exc:
             raise WeakPasswordError(exc.reasons) from exc
         except AuthApiError as exc:

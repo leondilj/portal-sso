@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import uuid
 from dataclasses import dataclass
@@ -134,6 +135,7 @@ class FakePool:
         self.papeis: dict[str, dict] = {}
         self.usuario_papeis: dict[tuple[str, str], dict] = {}
         self.auth_users: dict[str, dict] = {}
+        self.profiles: dict[str, dict] = {}
         self._lock = asyncio.Lock()
 
     def acquire(self) -> _AcquireCtx:
@@ -152,6 +154,11 @@ class FakePool:
     # --- fetch -----------------------------------------------------------
 
     def _dispatch_fetch(self, query: str, args: tuple) -> list[dict]:
+        if "jsonb_agg" in query:
+            # list_usuarios_do_sistema: unica query que agrega papeis por
+            # usuario num jsonb - checada antes do catch-all "from
+            # auth.users" abaixo, que tambem apareceria aqui.
+            return self._fetch_usuarios_do_sistema(args)
         if "insert into public.papeis" in query:
             # create_papel usa `insert ... returning`, via fetchrow.
             return self._insert_papel_returning(args)
@@ -244,17 +251,50 @@ class FakePool:
         rows.sort(key=lambda r: (r["aplicacao_nome"], r["codigo"]))
         return rows
 
+    def _nome_do_profile(self, user_id: str) -> str | None:
+        profile = self.profiles.get(user_id)
+        return profile["nome"] if profile else None
+
     def _fetch_auth_users(self, query: str, args: tuple) -> list[dict]:
-        if "where id = $1" in query:
+        if "id = $1" in query:
             row = self.auth_users.get(args[0])
-            return [dict(row)] if row else []
+            if row is None:
+                return []
+            return [{**row, "nome": self._nome_do_profile(args[0])}]
         # search_auth_users
         termo, limite = args
         rows = list(self.auth_users.values())
         if termo:
             rows = [r for r in rows if termo.lower() in (r["email"] or "").lower()]
         rows.sort(key=lambda r: r["created_at"], reverse=True)
-        return [dict(r) for r in rows[:limite]]
+        return [{**r, "nome": self._nome_do_profile(r["id"])} for r in rows[:limite]]
+
+    def _fetch_usuarios_do_sistema(self, args: tuple) -> list[dict]:
+        (aplicacao_id,) = args
+        papeis_por_usuario: dict[str, list[dict]] = {}
+        for (user_id, papel_id), _vinculo in self.usuario_papeis.items():
+            papel = self.papeis.get(papel_id)
+            if papel is None or papel["aplicacao_id"] != aplicacao_id:
+                continue
+            papeis_por_usuario.setdefault(user_id, []).append(
+                {"papel_id": papel_id, "codigo": papel["codigo"], "nome": papel["nome"]}
+            )
+        rows = []
+        for user_id, papeis in papeis_por_usuario.items():
+            user = self.auth_users.get(user_id)
+            if user is None:
+                continue
+            papeis.sort(key=lambda p: p["codigo"])
+            rows.append(
+                {
+                    "id": user_id,
+                    "email": user["email"],
+                    "nome": self._nome_do_profile(user_id),
+                    "papeis": json.dumps(papeis),
+                }
+            )
+        rows.sort(key=lambda r: r["nome"] or r["email"] or "")
+        return rows
 
     def _insert_papel_returning(self, args: tuple) -> list[dict]:
         aplicacao_id, codigo, nome, descricao = args

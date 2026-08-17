@@ -92,6 +92,7 @@ async def criar(
     admin_client: AdminClientDep,
     session: CurrentSession,
     email: str = Form(...),
+    nome: str = Form(""),
     papel_inicial: str = Form(""),
 ) -> Response:
     """A senha inicial e gerada pelo sistema (nao digitada pelo admin), no
@@ -102,7 +103,9 @@ async def criar(
     senha_gerada = secrets.token_urlsafe(16)
 
     try:
-        criado = await admin_client.create_user(email=email, password=senha_gerada)
+        criado = await admin_client.create_user(
+            email=email, password=senha_gerada, nome=nome or None
+        )
     except EmailAlreadyExistsError:
         papeis_disponiveis = await da.list_papeis_disponiveis(pool)
         return templates.TemplateResponse(

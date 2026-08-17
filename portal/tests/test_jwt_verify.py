@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.jwt_verify import InvalidTokenError, JWKSVerifier, extract_acessos
+from app.jwt_verify import InvalidTokenError, JWKSVerifier, extract_acessos, extract_nome
 
 
 @pytest.fixture
@@ -66,3 +66,27 @@ def test_missing_app_metadata_yields_empty_acessos(verifier: JWKSVerifier, sign_
     claims = verifier.verify(token)
 
     assert extract_acessos(claims) == {}
+
+
+def test_extract_nome_le_user_metadata(verifier: JWKSVerifier, sign_jwt) -> None:
+    token = sign_jwt({"user_metadata": {"nome": "Joao Silva"}})
+
+    claims = verifier.verify(token)
+
+    assert extract_nome(claims) == "Joao Silva"
+
+
+def test_extract_nome_ausente_retorna_none(verifier: JWKSVerifier, sign_jwt) -> None:
+    token = sign_jwt({})
+
+    claims = verifier.verify(token)
+
+    assert extract_nome(claims) is None
+
+
+def test_extract_nome_vazio_retorna_none(verifier: JWKSVerifier, sign_jwt) -> None:
+    token = sign_jwt({"user_metadata": {"nome": "   "}})
+
+    claims = verifier.verify(token)
+
+    assert extract_nome(claims) is None

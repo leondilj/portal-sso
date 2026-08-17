@@ -43,6 +43,17 @@ def extract_acessos(claims: dict[str, Any]) -> dict[str, list[str]]:
     return app_metadata.get("acessos") or {}
 
 
+def extract_nome(claims: dict[str, Any]) -> str | None:
+    """Le user_metadata.nome do payload do JWT - o GoTrue espelha
+    auth.users.raw_user_meta_data ali automaticamente, sem precisar do hook
+    de app_metadata.acessos. Populado quando o admin informa `nome` ao criar
+    o usuario (app/supabase_admin_client.py); ausente para usuarios antigos
+    ou criados sem nome."""
+    user_metadata = claims.get("user_metadata") or {}
+    nome = user_metadata.get("nome")
+    return nome if isinstance(nome, str) and nome.strip() else None
+
+
 def usuario_atual_via_header(
     request: Request, authorization: str = Header(...)
 ) -> dict[str, Any]:

@@ -15,7 +15,7 @@ independente deste app estar rodando.
 ## Como isso se encaixa no lab
 
 1. Aplique as migrations de `../sql/` no Supabase (nessa ordem: `0001`,
-   `0002`, `0003`, `0005`, e opcionalmente `0004` so em dev/lab).
+   `0002`, `0003`, `0005`, `0006`, e opcionalmente `0004` so em dev/lab).
 2. **So depois** de `0002_access_token_hook.sql` ter sido aplicada, ative o
    hook no `.env` do Supabase (README raiz, secao 7.5) e rode
    `sh run.sh recreate auth`. Ativar antes da funcao existir derruba todo
@@ -38,6 +38,15 @@ existente: o proprio portal e cadastrado como uma linha em `aplicacoes`
 acesso a `/admin` e controlado exatamente como o acesso a qualquer outro
 sistema - sem tabela nova, sem sistema de permissao paralelo.
 
+Cada sistema tem tres sub-telas em `/admin/sistemas/{id}`: **Perfis** (papeis
+daquele sistema), **Usuarios** (reverso de Perfis - lista quem tem algum
+papel naquele sistema especifico, com revogar direto dali) e o cliente
+OAuth. `Usuarios` (global, fora do escopo de um sistema) continua sendo
+busca/criacao por e-mail + conceder papel a partir da pagina do usuario -
+`/admin/sistemas/{id}/usuarios` e so a visao "de tras para frente", pensada
+pra responder "quem tem acesso a este sistema" sem navegar usuario por
+usuario.
+
 **Bootstrap do primeiro admin**: nao existe nenhum admin ainda para conceder
 esse papel pela UI (problema do ovo e da galinha) - isso e manual, um
 `insert into usuario_papeis ...` documentado no cabecalho de
@@ -55,6 +64,21 @@ mecanismo revela um `client_secret` novo/regenerado. Como o lab nao tem SMTP
 configurado (`ENABLE_EMAIL_AUTOCONFIRM=true` sem envio de e-mail), a criacao
 usa `email_confirm=true` direto - nao um fluxo de convite por link, que nao
 entregaria nada.
+
+**Nome de exibicao (`public.profiles`)**: o campo opcional "Nome" no
+formulario de novo usuario vai em `user_metadata` na chamada de criacao -
+o GoTrue grava isso em `auth.users.raw_user_meta_data` e expoe automaticamente
+como claim `user_metadata.nome` no JWT (sem precisar mexer no Custom Access
+Token Hook da secao 7.3, que so cuida de `acessos`). A tabela
+`public.profiles` (`sql/0006_profiles.sql`) e uma extensao 1:1 de
+`auth.users` mantida por um trigger `after insert or update of
+raw_user_meta_data on auth.users` (security definer, so le auth.users via
+`NEW` e escreve em `public.profiles` - o padrao de trigger permitido pela
+politica de `auth.users` continuar somente-leitura do lado do app; toda
+escrita em `auth.users` em si continua exclusivamente via Admin API). Usada
+para mostrar nome em vez de e-mail nas listagens administrativas e na
+sidebar do portal (que cai de volta para um nome derivado do e-mail quando
+`nome` esta ausente).
 
 **Guarda-corpo**: nao e possivel revogar o papel `admin` do portal se isso
 deixar zero administradores - a UI bloqueia com uma mensagem clara, para nao

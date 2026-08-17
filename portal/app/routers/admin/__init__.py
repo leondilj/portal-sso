@@ -4,12 +4,13 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 
 from app.deps import AdminSession, require_admin
-from app.routers.admin import clientes, perfis, sistemas, usuarios
+from app.routers.admin import clientes, perfis, sistema_usuarios, sistemas, usuarios
 
 router = APIRouter(prefix="/admin", dependencies=[Depends(require_admin)])
 router.include_router(sistemas.router)
 router.include_router(clientes.router)
 router.include_router(perfis.router)
+router.include_router(sistema_usuarios.router)
 router.include_router(usuarios.router)
 
 

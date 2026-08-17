@@ -64,7 +64,9 @@ def test_buscar_com_query(harness, fake_pool) -> None:
 
 
 def test_criar_usuario_sucesso_revela_senha_uma_vez(harness, fake_pool) -> None:
-    async def fake_create_user(*, email: str, password: str) -> AdminCreatedUser:
+    async def fake_create_user(
+        *, email: str, password: str, nome: str | None = None
+    ) -> AdminCreatedUser:
         assert email == "novo@lab.internal"
         _seed_user(fake_pool, user_id="new-user-1", email=email)
         return AdminCreatedUser(id="new-user-1", email=email)
@@ -87,7 +89,9 @@ def test_criar_usuario_sucesso_revela_senha_uma_vez(harness, fake_pool) -> None:
 
 
 def test_criar_usuario_email_duplicado(harness) -> None:
-    async def fake_create_user(*, email: str, password: str) -> AdminCreatedUser:
+    async def fake_create_user(
+        *, email: str, password: str, nome: str | None = None
+    ) -> AdminCreatedUser:
         raise EmailAlreadyExistsError(email)
 
     harness.app.state.supabase_admin_client.create_user = fake_create_user
@@ -100,7 +104,9 @@ def test_criar_usuario_email_duplicado(harness) -> None:
 
 
 def test_criar_usuario_senha_gerada_rejeitada(harness) -> None:
-    async def fake_create_user(*, email: str, password: str) -> AdminCreatedUser:
+    async def fake_create_user(
+        *, email: str, password: str, nome: str | None = None
+    ) -> AdminCreatedUser:
         raise WeakPasswordError(["muito curta"])
 
     harness.app.state.supabase_admin_client.create_user = fake_create_user
@@ -113,7 +119,9 @@ def test_criar_usuario_senha_gerada_rejeitada(harness) -> None:
 
 
 def test_criar_usuario_erro_generico(harness) -> None:
-    async def fake_create_user(*, email: str, password: str) -> AdminCreatedUser:
+    async def fake_create_user(
+        *, email: str, password: str, nome: str | None = None
+    ) -> AdminCreatedUser:
         raise AdminApiError("boom")
 
     harness.app.state.supabase_admin_client.create_user = fake_create_user
@@ -128,7 +136,9 @@ def test_criar_usuario_erro_generico(harness) -> None:
 def test_criar_usuario_com_papel_inicial_concede_direto(harness, fake_pool) -> None:
     papel_id = _seed_papel(fake_pool, aplicacao_id="qualidade", codigo="analista")
 
-    async def fake_create_user(*, email: str, password: str) -> AdminCreatedUser:
+    async def fake_create_user(
+        *, email: str, password: str, nome: str | None = None
+    ) -> AdminCreatedUser:
         _seed_user(fake_pool, user_id="new-user-2", email=email)
         return AdminCreatedUser(id="new-user-2", email=email)
 

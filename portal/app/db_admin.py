@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 import asyncpg
@@ -10,7 +11,9 @@ from app.models import (
     AppClientSummary,
     AuthUserRow,
     PapelComAplicacaoRow,
+    PapelConcedidoResumo,
     PapelRow,
+    UsuarioDoSistemaRow,
     UsuarioPapelRow,
 )
 
@@ -256,7 +259,9 @@ async def update_app_client_redirect_uris(
 # auth.users e do GoTrue, fora do schema public - o portal so le (via essa
 # conexao asyncpg privilegiada); toda escrita (criar usuario, resetar
 # senha) passa pela Admin API (app/supabase_admin_client.py), nunca por SQL
-# direto aqui.
+# direto aqui. `nome` vem de public.profiles (ver sql/0006_profiles.sql),
+# mantida em sincronia por trigger a partir de auth.users - left join porque
+# um usuario pode nao ter nome informado (profiles.nome null).
 
 
 async def search_auth_users(
@@ -264,10 +269,12 @@ async def search_auth_users(
 ) -> list[AuthUserRow]:
     rows = await pool.fetch(
         """
-        select id, email, created_at, last_sign_in_at, email_confirmed_at
-        from auth.users
-        where ($1::text is null or email ilike '%' || $1 || '%')
-        order by created_at desc
+        select u.id, u.email, pr.nome,
+               u.created_at, u.last_sign_in_at, u.email_confirmed_at
+        from auth.users u
+        left join public.profiles pr on pr.id = u.id
+        where ($1::text is null or u.email ilike '%' || $1 || '%')
+        order by u.created_at desc
         limit $2
         """,
         query,
@@ -279,12 +286,49 @@ async def search_auth_users(
 async def fetch_auth_user(pool: Queryable, user_id: str) -> AuthUserRow | None:
     row = await pool.fetchrow(
         """
-        select id, email, created_at, last_sign_in_at, email_confirmed_at
-        from auth.users where id = $1
+        select u.id, u.email, pr.nome,
+               u.created_at, u.last_sign_in_at, u.email_confirmed_at
+        from auth.users u
+        left join public.profiles pr on pr.id = u.id
+        where u.id = $1
         """,
         user_id,
     )
     return AuthUserRow(**_stringify_uuid_fields(dict(row), "id")) if row else None
+
+
+async def list_usuarios_do_sistema(
+    pool: Queryable, aplicacao_id: str
+) -> list[UsuarioDoSistemaRow]:
+    """Usuarios que tem pelo menos um papel concedido neste sistema, com os
+    papeis que cada um tem. Reverso de list_papeis_do_usuario (que parte do
+    usuario) - aqui parte-se do sistema, para a tela /admin/sistemas/{id}/usuarios."""
+    rows = await pool.fetch(
+        """
+        select u.id, u.email, pr.nome,
+               jsonb_agg(
+                 jsonb_build_object('papel_id', p.id, 'codigo', p.codigo, 'nome', p.nome)
+                 order by p.codigo
+               ) as papeis
+        from auth.users u
+        join public.usuario_papeis up on up.user_id = u.id
+        join public.papeis p on p.id = up.papel_id and p.aplicacao_id = $1
+        left join public.profiles pr on pr.id = u.id
+        group by u.id, u.email, pr.nome
+        order by coalesce(pr.nome, u.email)
+        """,
+        aplicacao_id,
+    )
+    result = []
+    for row in rows:
+        data = _stringify_uuid_fields(dict(row), "id")
+        # asyncpg devolve jsonb como texto cru (sem codec registrado em
+        # app/db.py::create_pool) - precisa decodificar antes de usar.
+        papeis_raw = data.pop("papeis")
+        papeis_json = json.loads(papeis_raw) if isinstance(papeis_raw, str) else papeis_raw
+        papeis = [PapelConcedidoResumo(**p) for p in papeis_json]
+        result.append(UsuarioDoSistemaRow(**data, papeis=papeis))
+    return result
 
 
 async def list_papeis_do_usuario(pool: Queryable, user_id: str) -> list[UsuarioPapelRow]:
