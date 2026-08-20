@@ -85,6 +85,7 @@ class AppClientSummary(BaseModel):
 class AuthUserRow(BaseModel):
     id: str
     email: str | None
+    nome: str | None = None
     created_at: datetime
     last_sign_in_at: datetime | None
     email_confirmed_at: datetime | None
@@ -97,3 +98,16 @@ class UsuarioPapelRow(BaseModel):
     codigo: str
     nome: str
     concedido_em: datetime
+
+
+class PapelConcedidoResumo(BaseModel):
+    papel_id: str
+    codigo: str
+    nome: str
+
+
+class UsuarioDoSistemaRow(BaseModel):
+    id: str
+    email: str | None
+    nome: str | None = None
+    papeis: list[PapelConcedidoResumo]

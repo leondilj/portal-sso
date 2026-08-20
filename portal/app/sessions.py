@@ -19,6 +19,7 @@ class SessionData:
     access_token: str
     refresh_token: str | None
     acessos: dict[str, list[str]]
+    nome: str | None = None
 
 
 class SessionManager:

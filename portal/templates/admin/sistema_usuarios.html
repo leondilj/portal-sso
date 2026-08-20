@@ -1,0 +1,48 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Usuarios - {{ sistema.nome }}{% endblock %}
+
+{% block admin_content %}
+  <div class="page-header">
+    <div>
+      <h2>Usuarios</h2>
+      <p class="page-header__subtitle">{{ sistema.nome }}</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Usuario</th><th>Perfis</th></tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+          <tr>
+            <td>
+              <a href="/admin/usuarios/{{ u.id }}">{{ u.nome or u.email }}</a>
+              {% if u.nome %}<span class="hint">{{ u.email }}</span>{% endif %}
+            </td>
+            <td>
+              <div class="row-actions">
+                {% for p in u.papeis %}
+                  <span class="badge">{{ p.codigo }}</span>
+                  <form
+                    method="post"
+                    action="/admin/sistemas/{{ sistema.id }}/usuarios/{{ u.id }}/papeis/{{ p.papel_id }}/revogar"
+                    class="confirm-danger"
+                  >
+                    <button type="submit" class="btn btn-danger btn-sm">Revogar</button>
+                  </form>
+                {% endfor %}
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="2">Nenhum usuario tem perfil neste sistema ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">Para conceder um perfil a um novo usuario, use Usuarios &gt; buscar ou criar, e conceda o perfil pela pagina do usuario.</p>
+  <p><a href="/admin/sistemas/{{ sistema.id }}">Voltar ao sistema</a></p>
+{% endblock %}

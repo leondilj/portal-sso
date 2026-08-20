@@ -74,10 +74,17 @@ async def detalhe(
         raise HTTPException(status_code=404, detail="sistema nao encontrado")
     cliente = await da.fetch_app_client_summary(pool, aplicacao_id)
     perfis = await da.list_papeis(pool, aplicacao_id)
+    usuarios = await da.list_usuarios_do_sistema(pool, aplicacao_id)
     return templates.TemplateResponse(
         request,
         "admin/sistema_detalhe.html",
-        {"sistema": sistema, "cliente": cliente, "perfis": perfis, "session": session},
+        {
+            "sistema": sistema,
+            "cliente": cliente,
+            "perfis": perfis,
+            "usuarios": usuarios,
+            "session": session,
+        },
     )
 
 

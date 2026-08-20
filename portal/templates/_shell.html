@@ -19,9 +19,9 @@
 
       {% if session %}
         <div class="app-sidebar__user">
-          <span class="user-avatar">{{ session.email[0]|upper }}</span>
+          <span class="user-avatar">{{ (session.nome or session.email)[0]|upper }}</span>
           <span class="user-meta">
-            <span class="user-name">{{ session.email.split("@")[0]|replace(".", " ")|title }}</span>
+            <span class="user-name">{{ session.nome or session.email.split("@")[0]|replace(".", " ")|title }}</span>
             <span class="user-role">{{ "Administrador" if "admin" in session.acessos.get("portal", []) else "Usuario" }}</span>
           </span>
           <form method="post" action="/logout" class="logout-form" title="Sair">

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Form, Request
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
-from app.jwt_verify import InvalidTokenError, extract_acessos
+from app.jwt_verify import InvalidTokenError, extract_acessos, extract_nome
 from app.sessions import SESSION_COOKIE_NAME, SessionData
 from app.supabase_client import InvalidCredentialsError
 
@@ -35,6 +35,7 @@ async def login(
         access_token=session.access_token,
         refresh_token=session.refresh_token,
         acessos=extract_acessos(claims),
+        nome=extract_nome(claims),
     )
     cookie_value = request.app.state.session_manager.encode(session_data)
     settings = request.app.state.settings

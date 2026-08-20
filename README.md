@@ -533,6 +533,49 @@ curl -s -X POST 'http://supabase.lab.internal/auth/v1/token?grant_type=password'
 
 Algoritmo **ES256** com `kid` — chaves assimétricas funcionando, JWKS disponível para as aplicações validarem sem segredo compartilhado.
 
+### 7.7 `public.profiles` — nome de exibição
+
+Extensão 1:1 de `auth.users` para dados de perfil que não pertencem ao
+GoTrue (hoje só o nome de exibição). `auth.users` continua estritamente
+somente-leitura do lado do app — `profiles` nunca é escrita diretamente pelo
+backend, só por um trigger que espelha `raw_user_meta_data->>'nome'` sempre
+que ele muda:
+
+```sql
+create table public.profiles (
+  id            uuid primary key references auth.users(id) on delete cascade,
+  nome          text,
+  criado_em     timestamptz not null default now(),
+  atualizado_em timestamptz not null default now()
+);
+
+create or replace function public.sync_profile_from_auth_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, nome, atualizado_em)
+  values (new.id, new.raw_user_meta_data ->> 'nome', now())
+  on conflict (id) do update
+    set nome = excluded.nome, atualizado_em = now();
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created_or_updated
+  after insert or update of raw_user_meta_data on auth.users
+  for each row execute function public.sync_profile_from_auth_user();
+```
+
+O nome entra em `raw_user_meta_data` via `user_metadata` na chamada de
+criação da GoTrue Admin API (não por SQL) — o GoTrue já expõe isso
+automaticamente como claim `user_metadata.nome` no JWT, sem precisar tocar
+no hook de `acessos` da seção 7.3. Ver `sql/0006_profiles.sql` e
+`portal/README.md` para o fluxo completo (formulário → Admin API → trigger →
+sidebar/listagens administrativas).
+
 ---
 
 ## 8. Arquitetura do portal (mini authorization code flow)
